@@ -34,21 +34,21 @@ export function EmployeeCard(props: Props) {
         <img
           src={empleado.foto_url}
           alt={empleado.nombre}
-          className="w-44 h-44 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0"
+          className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0"
         />
       ) : (
         <InitialsAvatar
           nombre={empleado.nombre}
-          className="w-44 h-44 rounded-full border-4 border-white shadow-lg flex-shrink-0"
+          className="w-36 h-36 rounded-full border-4 border-white shadow-lg flex-shrink-0"
         />
       )}
 
       {/* Info */}
       <div className="flex flex-col items-start">
-        <span className="bg-teal-500 text-white text-2xl font-semibold px-8 py-2.5 rounded-full shadow whitespace-nowrap">
+        <span className="bg-teal-500 text-white text-3xl font-semibold px-8 py-2.5 rounded-full shadow whitespace-nowrap">
           {empleado.nombre}
         </span>
-        <p className="text-gray-700 text-3xl font-bold mt-4 ml-2">
+        <p className="text-gray-700 text-4xl font-bold mt-4 ml-2">
           {isBirthday
             ? props.event.fechaCumple
             : `${props.event.anosServicio} ${props.event.anosServicio === 1 ? "a\u00f1o" : "a\u00f1os"} de servicio`}

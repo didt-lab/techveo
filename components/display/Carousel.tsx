@@ -6,7 +6,7 @@ import { Slide } from "./Slide";
 import { CapsuleHeader } from "./CapsuleHeader";
 import type { BirthdayEvent, AnniversaryEvent } from "@/lib/domain/types";
 
-const SLIDE_DURATION_MS = 10000;
+const SLIDE_DURATION_MS = 5000;
 
 interface SlideData {
   type: "birthday" | "anniversary";
@@ -85,7 +85,7 @@ export function Carousel({
       </div>
 
       {/* Party popper fijo */}
-      <div className="absolute bottom-4 right-8 opacity-70 pointer-events-none" style={{ fontSize: "16rem" }}>
+      <div className="absolute bottom-4 right-8 opacity-70 pointer-events-none" style={{ fontSize: "11rem" }}>
         🎉
       </div>
     </div>
