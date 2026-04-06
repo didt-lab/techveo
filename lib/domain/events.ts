@@ -87,10 +87,13 @@ export function getAnniversariesInMonth(
     if (!parsed) continue;
 
     if (parsed.month === currentMonth && parsed.year < currentYear) {
-      results.push({
-        empleado: emp,
-        anosServicio: currentYear - parsed.year,
-      });
+      const anos = currentYear - parsed.year;
+      if (anos >= 5) {
+        results.push({
+          empleado: emp,
+          anosServicio: anos,
+        });
+      }
     }
   }
 
