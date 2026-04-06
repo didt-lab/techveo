@@ -19,11 +19,11 @@ function buildSlides(
 ): SlideData[] {
   const slides: SlideData[] = [];
 
-  for (let i = 0; i < cumpleanos.length; i += 4) {
+  for (let i = 0; i < cumpleanos.length; i += 2) {
     slides.push({ type: "birthday", events: cumpleanos.slice(i, i + 4) });
   }
 
-  for (let i = 0; i < aniversarios.length; i += 4) {
+  for (let i = 0; i < aniversarios.length; i += 2) {
     slides.push({ type: "anniversary", events: aniversarios.slice(i, i + 4) });
   }
 
@@ -85,7 +85,7 @@ export function Carousel({
       </div>
 
       {/* Party popper fijo */}
-      <div className="absolute bottom-8 right-12 text-8xl opacity-70 pointer-events-none">
+      <div className="absolute bottom-4 right-8 opacity-70 pointer-events-none" style={{ fontSize: "16rem" }}>
         🎉
       </div>
     </div>

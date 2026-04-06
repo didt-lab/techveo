@@ -16,7 +16,7 @@ export function InitialsAvatar({
 
   return (
     <div
-      className={`flex items-center justify-center bg-gradient-to-br from-teal-400 to-purple-500 text-white font-bold text-4xl ${className}`}
+      className={`flex items-center justify-center bg-gradient-to-br from-teal-400 to-purple-500 text-white font-bold text-5xl ${className}`}
     >
       {initials}
     </div>

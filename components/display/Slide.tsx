@@ -23,9 +23,9 @@ export function Slide(props: Props) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="absolute inset-0 flex items-center justify-center px-16"
+      className="absolute inset-0 flex items-center justify-center px-20"
     >
-      <div className="grid grid-cols-2 gap-x-12 gap-y-8 w-full max-w-5xl">
+      <div className="flex flex-col gap-16 w-full max-w-4xl">
         {props.type === "birthday"
           ? (props.events as BirthdayEvent[]).map((event, i) => (
               <EmployeeCard
