@@ -61,7 +61,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-3xl font-extrabold text-gray-800 text-center uppercase leading-tight mb-6"
+            className="text-4xl font-extrabold text-gray-800 text-center uppercase leading-tight mb-6"
           >
             Reconocimiento<br />por tus a{"\u00f1"}os<br />laborando en la DIDT
           </motion.h2>
@@ -70,7 +70,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-5xl font-extrabold text-teal-600 mb-2"
+            className="text-6xl font-extrabold text-teal-600 mb-2"
           >
             {event.anosServicio} a{"\u00f1"}o{event.anosServicio !== 1 ? "s" : ""}
           </motion.p>
@@ -79,7 +79,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.7 }}
-            className="text-xl text-gray-500 mb-8"
+            className="text-2xl text-gray-500 mb-8"
           >
             {formatMonthYear(empleado.fecha_ingreso)}
           </motion.p>
@@ -90,7 +90,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             transition={{ duration: 0.4, delay: 0.9 }}
             className="border-t-2 border-gray-200 pt-4 mb-6"
           >
-            <p className="text-gray-600 text-lg font-semibold italic text-center">
+            <p className="text-gray-600 text-xl font-semibold italic text-center">
               Gracias por hacer historia<br />con nosotros
             </p>
           </motion.div>
@@ -99,7 +99,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 1.1 }}
-            className="text-7xl"
+            className="text-8xl"
           >
             🏆
           </motion.div>
