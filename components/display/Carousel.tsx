@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Slide } from "./Slide";
+import { CapsuleHeader } from "./CapsuleHeader";
 import type { BirthdayEvent, AnniversaryEvent } from "@/lib/domain/types";
 
-const SLIDE_DURATION_MS = 8000;
+const SLIDE_DURATION_MS = 10000;
 
 interface SlideData {
   type: "birthday" | "anniversary";
-  events: [BirthdayEvent] | [BirthdayEvent, BirthdayEvent] | [AnniversaryEvent] | [AnniversaryEvent, AnniversaryEvent];
+  events: BirthdayEvent[] | AnniversaryEvent[];
 }
 
 function buildSlides(
@@ -18,14 +19,12 @@ function buildSlides(
 ): SlideData[] {
   const slides: SlideData[] = [];
 
-  for (let i = 0; i < cumpleanos.length; i += 2) {
-    const pair = cumpleanos.slice(i, i + 2) as [BirthdayEvent] | [BirthdayEvent, BirthdayEvent];
-    slides.push({ type: "birthday", events: pair });
+  for (let i = 0; i < cumpleanos.length; i += 4) {
+    slides.push({ type: "birthday", events: cumpleanos.slice(i, i + 4) });
   }
 
-  for (let i = 0; i < aniversarios.length; i += 2) {
-    const pair = aniversarios.slice(i, i + 2) as [AnniversaryEvent] | [AnniversaryEvent, AnniversaryEvent];
-    slides.push({ type: "anniversary", events: pair });
+  for (let i = 0; i < aniversarios.length; i += 4) {
+    slides.push({ type: "anniversary", events: aniversarios.slice(i, i + 4) });
   }
 
   return slides;
@@ -62,22 +61,33 @@ export function Carousel({
   const slide = slides[currentIndex];
 
   return (
-    <div className="relative w-full h-full">
-      <AnimatePresence mode="wait">
-        {slide.type === "birthday" ? (
-          <Slide
-            key={`birthday-${currentIndex}`}
-            type="birthday"
-            events={slide.events as [BirthdayEvent] | [BirthdayEvent, BirthdayEvent]}
-          />
-        ) : (
-          <Slide
-            key={`anniversary-${currentIndex}`}
-            type="anniversary"
-            events={slide.events as [AnniversaryEvent] | [AnniversaryEvent, AnniversaryEvent]}
-          />
-        )}
-      </AnimatePresence>
+    <div className="relative w-full h-full flex flex-col">
+      {/* Header fijo — no se anima */}
+      <CapsuleHeader type={slide.type} />
+
+      {/* Contenido animado */}
+      <div className="flex-1 relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          {slide.type === "birthday" ? (
+            <Slide
+              key={`birthday-${currentIndex}`}
+              type="birthday"
+              events={slide.events as BirthdayEvent[]}
+            />
+          ) : (
+            <Slide
+              key={`anniversary-${currentIndex}`}
+              type="anniversary"
+              events={slide.events as AnniversaryEvent[]}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Party popper fijo */}
+      <div className="absolute bottom-8 right-12 text-8xl opacity-70 pointer-events-none">
+        🎉
+      </div>
     </div>
   );
 }

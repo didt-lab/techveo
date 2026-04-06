@@ -5,6 +5,7 @@ interface BirthdayCsvRow {
   matricula?: string;
   nombre?: string;
   fecha_nacimiento?: string;
+  ingreso?: string;
 }
 
 interface AnniversaryCsvRow {
@@ -13,21 +14,34 @@ interface AnniversaryCsvRow {
   fecha_ingreso?: string;
 }
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_DMY_RE = /^\d{2}\/\d{2}\/\d{4}$/;
+
+/** Normalizes date to YYYY-MM-DD. Accepts YYYY-MM-DD or DD/MM/YYYY. */
+function normalizeDate(val: string): string | null {
+  if (DATE_ISO_RE.test(val)) {
+    const [y, m, d] = val.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    if (date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d) {
+      return val;
+    }
+  }
+  if (DATE_DMY_RE.test(val)) {
+    const [d, m, y] = val.split("/").map(Number);
+    const date = new Date(y, m - 1, d);
+    if (date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d) {
+      return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    }
+  }
+  return null;
+}
 
 function isValidDate(val: string): boolean {
-  if (!DATE_RE.test(val)) return false;
-  const [y, m, d] = val.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  return (
-    date.getFullYear() === y &&
-    date.getMonth() === m - 1 &&
-    date.getDate() === d
-  );
+  return normalizeDate(val) !== null;
 }
 
 export function parseBirthdayCsv(csvText: string): {
-  valid: { matricula: string; nombre: string; fecha_nacimiento: string }[];
+  valid: { matricula: string; nombre: string; fecha_nacimiento: string; fecha_ingreso: string | null }[];
   errors: ImportResult["errors"];
 } {
   const { data } = Papa.parse<BirthdayCsvRow>(csvText, {
@@ -36,7 +50,7 @@ export function parseBirthdayCsv(csvText: string): {
     transformHeader: (h) => h.trim().toLowerCase(),
   });
 
-  const valid: { matricula: string; nombre: string; fecha_nacimiento: string }[] = [];
+  const valid: { matricula: string; nombre: string; fecha_nacimiento: string; fecha_ingreso: string | null }[] = [];
   const errors: ImportResult["errors"] = [];
   const seenMatriculas = new Set<string>();
 
@@ -45,6 +59,7 @@ export function parseBirthdayCsv(csvText: string): {
     const matricula = row.matricula?.trim();
     const nombre = row.nombre?.trim();
     const fecha = row.fecha_nacimiento?.trim();
+    const ingreso = row.ingreso?.trim();
 
     if (!matricula) {
       errors.push({ row: rowNum, message: "Matrícula vacía" });
@@ -54,10 +69,11 @@ export function parseBirthdayCsv(csvText: string): {
       errors.push({ row: rowNum, message: "Nombre vacío" });
       return;
     }
-    if (!fecha || !isValidDate(fecha)) {
+    const fechaNorm = fecha ? normalizeDate(fecha) : null;
+    if (!fechaNorm) {
       errors.push({
         row: rowNum,
-        message: `Fecha inválida: "${fecha ?? ""}" — formato esperado: YYYY-MM-DD`,
+        message: `Fecha inválida: "${fecha ?? ""}" — formato esperado: YYYY-MM-DD o DD/MM/YYYY`,
       });
       return;
     }
@@ -67,7 +83,12 @@ export function parseBirthdayCsv(csvText: string): {
     }
 
     seenMatriculas.add(matricula);
-    valid.push({ matricula, nombre, fecha_nacimiento: fecha });
+    valid.push({
+      matricula,
+      nombre,
+      fecha_nacimiento: fechaNorm,
+      fecha_ingreso: ingreso ? normalizeDate(ingreso) : null,
+    });
   });
 
   return { valid, errors };
@@ -101,10 +122,11 @@ export function parseAnniversaryCsv(csvText: string): {
       errors.push({ row: rowNum, message: "Nombre vacío" });
       return;
     }
-    if (!fecha || !isValidDate(fecha)) {
+    const fechaNorm = fecha ? normalizeDate(fecha) : null;
+    if (!fechaNorm) {
       errors.push({
         row: rowNum,
-        message: `Fecha inválida: "${fecha ?? ""}" — formato esperado: YYYY-MM-DD`,
+        message: `Fecha inválida: "${fecha ?? ""}" — formato esperado: YYYY-MM-DD o DD/MM/YYYY`,
       });
       return;
     }
@@ -114,7 +136,7 @@ export function parseAnniversaryCsv(csvText: string): {
     }
 
     seenMatriculas.add(matricula);
-    valid.push({ matricula, nombre, fecha_ingreso: fecha });
+    valid.push({ matricula, nombre, fecha_ingreso: fechaNorm });
   });
 
   return { valid, errors };

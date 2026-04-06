@@ -7,61 +7,53 @@ import type { BirthdayEvent, AnniversaryEvent } from "@/lib/domain/types";
 interface BirthdayProps {
   type: "birthday";
   event: BirthdayEvent;
+  index: number;
 }
 
 interface AnniversaryProps {
   type: "anniversary";
   event: AnniversaryEvent;
+  index: number;
 }
 
 type Props = BirthdayProps | AnniversaryProps;
 
 export function EmployeeCard(props: Props) {
   const isBirthday = props.type === "birthday";
-  const empleado = isBirthday ? props.event.empleado : props.event.empleado;
+  const empleado = props.event.empleado;
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.5 }}
-      className={`
-        flex flex-col items-center text-center p-8 rounded-3xl border flex-1
-        ${
-          isBirthday
-            ? "bg-gradient-to-b from-pink-950/60 to-pink-900/30 border-pink-700/40"
-            : "bg-gradient-to-b from-amber-950/60 to-amber-900/30 border-amber-700/40"
-        }
-      `}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: props.index * 0.3 }}
+      className="flex items-center gap-6"
     >
+      {/* Foto circular */}
       {empleado.foto_url ? (
         <img
           src={empleado.foto_url}
           alt={empleado.nombre}
-          className="w-32 h-32 rounded-full object-cover border-4 border-white/20 mb-6"
+          className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0"
         />
       ) : (
         <InitialsAvatar
           nombre={empleado.nombre}
-          className="w-32 h-32 rounded-full border-4 border-white/20 mb-6"
+          className="w-28 h-28 rounded-full border-4 border-white shadow-lg flex-shrink-0"
         />
       )}
 
-      <h3 className="text-2xl font-bold text-white leading-tight mb-3">
-        {empleado.nombre}
-      </h3>
-
-      {isBirthday ? (
-        <p className="text-pink-300 text-lg font-medium">
-          {props.event.fechaCumple}
+      {/* Info */}
+      <div className="flex flex-col items-start min-w-0">
+        <span className="bg-teal-500 text-white text-lg font-semibold px-5 py-1.5 rounded-full shadow whitespace-normal text-center leading-snug">
+          {empleado.nombre}
+        </span>
+        <p className="text-gray-700 text-xl font-bold mt-2 ml-1">
+          {isBirthday
+            ? props.event.fechaCumple
+            : `${props.event.anosServicio} ${props.event.anosServicio === 1 ? "a\u00f1o" : "a\u00f1os"} de servicio`}
         </p>
-      ) : (
-        <p className="text-amber-300 text-lg font-medium">
-          {props.event.anosServicio}{" "}
-          {props.event.anosServicio === 1 ? "año" : "años"} de servicio
-        </p>
-      )}
+      </div>
     </motion.div>
   );
 }

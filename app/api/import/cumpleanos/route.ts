@@ -19,39 +19,75 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No se envió archivo" }, { status: 400 });
   }
 
-  const text = await file.text();
-  const { valid, errors } = parseBirthdayCsv(text);
+  try {
+    const text = await file.text();
+    const { valid, errors } = parseBirthdayCsv(text);
 
-  let created = 0;
-  let updated = 0;
-
-  for (const row of valid) {
-    const { data: existing } = await supabase
+    // Get existing records with their fecha_ingreso to preserve it
+    const matriculas = valid.map((r) => r.matricula);
+    const { data: existingRows, error: selectErr } = await supabase
       .from("empleados")
-      .select("id")
-      .eq("matricula", row.matricula)
-      .single();
+      .select("matricula, fecha_ingreso")
+      .in("matricula", matriculas);
 
-    if (existing) {
-      await supabase
-        .from("empleados")
-        .update({
-          nombre: row.nombre,
-          fecha_nacimiento: row.fecha_nacimiento,
-        })
-        .eq("matricula", row.matricula);
-      updated++;
-    } else {
-      await supabase.from("empleados").insert({
-        matricula: row.matricula,
-        nombre: row.nombre,
-        fecha_nacimiento: row.fecha_nacimiento,
-        fecha_ingreso: "1900-01-01",
-      });
-      created++;
+    if (selectErr) {
+      return NextResponse.json({ error: selectErr.message }, { status: 500 });
     }
-  }
 
-  const result: ImportResult = { created, updated, errors };
-  return NextResponse.json(result);
+    const existingMap = new Map(
+      (existingRows ?? []).map((r: { matricula: string; fecha_ingreso: string }) => [
+        r.matricula,
+        r.fecha_ingreso,
+      ])
+    );
+
+    const toInsert = valid
+      .filter((r) => !existingMap.has(r.matricula))
+      .map((r) => ({
+        matricula: r.matricula,
+        nombre: r.nombre,
+        fecha_nacimiento: r.fecha_nacimiento,
+        fecha_ingreso: r.fecha_ingreso ?? "1900-01-01",
+      }));
+
+    const toUpsert = valid
+      .filter((r) => existingMap.has(r.matricula))
+      .map((r) => ({
+        matricula: r.matricula,
+        nombre: r.nombre,
+        fecha_nacimiento: r.fecha_nacimiento,
+        fecha_ingreso: r.fecha_ingreso ?? existingMap.get(r.matricula)!,
+      }));
+
+    if (toInsert.length > 0) {
+      const { error: insertErr } = await supabase
+        .from("empleados")
+        .insert(toInsert);
+      if (insertErr) {
+        return NextResponse.json({ error: insertErr.message }, { status: 500 });
+      }
+    }
+
+    if (toUpsert.length > 0) {
+      const { error: upsertErr } = await supabase
+        .from("empleados")
+        .upsert(toUpsert, { onConflict: "matricula" });
+      if (upsertErr) {
+        return NextResponse.json({ error: upsertErr.message }, { status: 500 });
+      }
+    }
+
+    const result: ImportResult = {
+      created: toInsert.length,
+      updated: toUpsert.length,
+      errors,
+    };
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error("[/api/import/cumpleanos] Error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Error desconocido" },
+      { status: 500 }
+    );
+  }
 }

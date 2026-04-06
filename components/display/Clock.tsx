@@ -17,10 +17,10 @@ export function Clock() {
 
   return (
     <div className="text-right">
-      <p className="text-4xl font-bold text-white tabular-nums">
+      <p className="text-4xl font-bold text-gray-800 tabular-nums">
         {format(now, "HH:mm")}
       </p>
-      <p className="text-white/60 text-sm mt-0.5 capitalize">
+      <p className="text-gray-500 text-sm mt-0.5 capitalize">
         {format(now, "EEEE d 'de' MMMM yyyy", { locale: es })}
       </p>
     </div>

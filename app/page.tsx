@@ -38,7 +38,6 @@ export default function DisplayPage() {
     queryKey: ["events"],
     queryFn: fetchEvents,
     refetchInterval: POLL_INTERVAL_MS,
-    initialData: loadCache() ?? undefined,
   });
 
   // Save to cache on successful fetch
@@ -72,18 +71,17 @@ export default function DisplayPage() {
   }, []);
 
   const cumpleanos = data?.cumpleanos ?? [];
-  const aniversarios = data?.aniversarios ?? [];
-  const hasEvents = cumpleanos.length > 0 || aniversarios.length > 0;
+  const hasEvents = cumpleanos.length > 0;
 
   return (
-    <main className="h-screen flex flex-col bg-gray-950">
+    <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
       {/* Header */}
-      <header className="flex items-center justify-between px-10 py-5 border-b border-white/10">
+      <header className="flex items-center justify-between px-10 py-4 border-b border-gray-300">
         <div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-gray-800">
             DIDT
           </h1>
-          <p className="text-white/40 text-sm">
+          <p className="text-gray-400 text-sm">
             Dirección de Innovación y Desarrollo Tecnológico
           </p>
         </div>
@@ -93,19 +91,19 @@ export default function DisplayPage() {
       {/* Content */}
       <div className="flex-1 relative overflow-hidden">
         {hasEvents ? (
-          <Carousel cumpleanos={cumpleanos} aniversarios={aniversarios} />
+          <Carousel cumpleanos={cumpleanos} aniversarios={[]} />
         ) : (
           <EmptyState />
         )}
       </div>
 
       {/* Footer */}
-      <footer className="px-10 py-3 border-t border-white/10 flex items-center justify-between">
-        <span className="text-white/20 text-xs">
+      <footer className="px-10 py-3 border-t border-gray-300 flex items-center justify-between">
+        <span className="text-gray-400 text-xs">
           IMSS · Dirección de Innovación y Desarrollo Tecnológico
         </span>
         {data && (
-          <span className="text-white/20 text-xs">
+          <span className="text-gray-400 text-xs">
             Actualizado: {new Date(data.fetchedAt).toLocaleTimeString("es-MX")}
           </span>
         )}

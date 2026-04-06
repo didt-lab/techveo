@@ -1,0 +1,101 @@
+"use client";
+
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Carousel } from "@/components/display/Carousel";
+import { Clock } from "@/components/display/Clock";
+import { EmptyState } from "@/components/display/EmptyState";
+import type { EventsResponse } from "@/lib/domain/types";
+
+const POLL_INTERVAL_MS = 5 * 60 * 1000;
+const CACHE_KEY = "techveo:last-aniversarios";
+
+function loadCache(): EventsResponse | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? (JSON.parse(raw) as EventsResponse) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveCache(data: EventsResponse) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+async function fetchEvents(): Promise<EventsResponse> {
+  const res = await fetch("/api/events", { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export default function AniversariosPage() {
+  const { data } = useQuery<EventsResponse>({
+    queryKey: ["events"],
+    queryFn: fetchEvents,
+    refetchInterval: POLL_INTERVAL_MS,
+  });
+
+  useEffect(() => {
+    if (data) saveCache(data);
+  }, [data]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        fetchEvents().then(saveCache).catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
+  useEffect(() => {
+    const now = new Date();
+    const next3AM = new Date(now);
+    next3AM.setHours(3, 0, 0, 0);
+    if (next3AM <= now) next3AM.setDate(next3AM.getDate() + 1);
+    const ms = next3AM.getTime() - now.getTime();
+    const timeout = setTimeout(() => window.location.reload(), ms);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const aniversarios = data?.aniversarios ?? [];
+  const hasEvents = aniversarios.length > 0;
+
+  return (
+    <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
+      <header className="flex items-center justify-between px-10 py-4 border-b border-gray-300">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">DIDT</h1>
+          <p className="text-gray-400 text-sm">
+            Dirección de Innovación y Desarrollo Tecnológico
+          </p>
+        </div>
+        <Clock />
+      </header>
+
+      <div className="flex-1 relative overflow-hidden">
+        {hasEvents ? (
+          <Carousel cumpleanos={[]} aniversarios={aniversarios} />
+        ) : (
+          <EmptyState />
+        )}
+      </div>
+
+      <footer className="px-10 py-3 border-t border-gray-300 flex items-center justify-between">
+        <span className="text-gray-400 text-xs">
+          IMSS · Dirección de Innovación y Desarrollo Tecnológico
+        </span>
+        {data && (
+          <span className="text-gray-400 text-xs">
+            Actualizado:{" "}
+            {new Date(data.fetchedAt).toLocaleTimeString("es-MX")}
+          </span>
+        )}
+      </footer>
+    </main>
+  );
+}

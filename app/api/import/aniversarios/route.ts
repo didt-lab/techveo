@@ -22,36 +22,52 @@ export async function POST(request: NextRequest) {
   const text = await file.text();
   const { valid, errors } = parseAnniversaryCsv(text);
 
-  let created = 0;
-  let updated = 0;
+  const matriculas = valid.map((r) => r.matricula);
+  const { data: existingRows } = await supabase
+    .from("empleados")
+    .select("matricula")
+    .in("matricula", matriculas);
 
-  for (const row of valid) {
-    const { data: existing } = await supabase
+  const existingSet = new Set(
+    (existingRows ?? []).map((r: { matricula: string }) => r.matricula)
+  );
+
+  const toInsert = valid
+    .filter((r) => !existingSet.has(r.matricula))
+    .map((r) => ({
+      matricula: r.matricula,
+      nombre: r.nombre,
+      fecha_nacimiento: "1900-01-01",
+      fecha_ingreso: r.fecha_ingreso,
+    }));
+
+  const toUpdate = valid.filter((r) => existingSet.has(r.matricula));
+
+  if (toInsert.length > 0) {
+    const { error: insertErr } = await supabase
       .from("empleados")
-      .select("id")
-      .eq("matricula", row.matricula)
-      .single();
-
-    if (existing) {
-      await supabase
-        .from("empleados")
-        .update({
-          nombre: row.nombre,
-          fecha_ingreso: row.fecha_ingreso,
-        })
-        .eq("matricula", row.matricula);
-      updated++;
-    } else {
-      await supabase.from("empleados").insert({
-        matricula: row.matricula,
-        nombre: row.nombre,
-        fecha_nacimiento: "1900-01-01",
-        fecha_ingreso: row.fecha_ingreso,
-      });
-      created++;
-    }
+      .insert(toInsert);
+    if (insertErr) throw insertErr;
   }
 
-  const result: ImportResult = { created, updated, errors };
+  if (toUpdate.length > 0) {
+    const { error: upsertErr } = await supabase
+      .from("empleados")
+      .upsert(
+        toUpdate.map((r) => ({
+          matricula: r.matricula,
+          nombre: r.nombre,
+          fecha_ingreso: r.fecha_ingreso,
+        })),
+        { onConflict: "matricula", ignoreDuplicates: false }
+      );
+    if (upsertErr) throw upsertErr;
+  }
+
+  const result: ImportResult = {
+    created: toInsert.length,
+    updated: toUpdate.length,
+    errors,
+  };
   return NextResponse.json(result);
 }

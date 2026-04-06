@@ -8,18 +8,20 @@ export function CapsuleHeader({
   const isBirthday = type === "birthday";
 
   return (
-    <div
-      className={`
-        text-center py-4 mb-8
-        ${isBirthday ? "text-pink-300" : "text-amber-300"}
-      `}
-    >
-      <span className="text-5xl mb-2 block">
-        {isBirthday ? "🎂" : "🏆"}
-      </span>
-      <h2 className="text-3xl font-bold uppercase tracking-wider">
-        {isBirthday ? "Cumpleaños" : "Aniversarios de Servicio"}
-      </h2>
+    <div className="text-center mb-10">
+      {isBirthday ? (
+        <h2 className="text-6xl font-extrabold">
+          <span className="text-purple-600 italic">&#161;Feliz</span>{" "}
+          <span className="text-teal-500 italic">Cumple!</span>
+        </h2>
+      ) : (
+        <h2 className="text-5xl font-extrabold">
+          <span className="text-purple-600">&#161;Felicidades!</span>
+        </h2>
+      )}
+      <p className="text-gray-400 text-lg mt-2">
+        {isBirthday ? "" : "Aniversario de Servicio"}
+      </p>
     </div>
   );
 }

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(git:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(grep -E \"\\\\.\\(ts|json\\)$\")",
+      "Bash(grep -E \"\\\\.\\(ts|mjs|json\\)$\")",
+      "Bash(printf:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3000\")",
+      "Bash(curl -s http://localhost:3001)",
+      "Bash(kill %1)",
+      "Bash(curl:*)",
+      "Bash(tasklist //fi \"imagename eq node.exe\" //fo csv //nh)",
+      "Bash(npx next:*)"
+    ]
+  }
+}
