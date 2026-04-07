@@ -49,7 +49,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="bg-teal-600 px-6 py-3 rounded-xl -mt-5 shadow-md"
           >
-            <p className="text-white text-center text-xl font-bold leading-snug">
+            <p className="text-white text-center text-3xl font-bold leading-snug">
               {empleado.nombre}
             </p>
           </motion.div>
@@ -79,7 +79,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.7 }}
-            className="text-2xl text-gray-500 mb-8"
+            className="text-2xl text-gray-500 font-bold mb-8"
           >
             {formatMonthYear(empleado.fecha_ingreso)}
           </motion.p>
@@ -90,7 +90,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             transition={{ duration: 0.4, delay: 0.9 }}
             className="border-t-2 border-gray-200 pt-4 mb-6"
           >
-            <p className="text-gray-600 text-xl font-semibold italic text-center">
+            <p className="text-gray-600 text-2xl font-bold italic text-center">
               Gracias por hacer historia<br />con nosotros
             </p>
           </motion.div>

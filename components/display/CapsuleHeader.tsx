@@ -8,7 +8,7 @@ export function CapsuleHeader({
   const isBirthday = type === "birthday";
 
   return (
-    <div className="text-center mb-10">
+    <div className="text-center mb-10 pt-8">
       {isBirthday ? (
         <h2 className="text-6xl font-extrabold">
           <span className="text-purple-600 italic">&#161;Feliz</span>{" "}
