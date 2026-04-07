@@ -16,11 +16,15 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const { matricula, nombre, fecha_nacimiento, fecha_ingreso, foto_url } = body;
+  const { matricula, nombre, fecha_nacimiento, fecha_ingreso, foto_url, mostrar_cumpleanos, mostrar_aniversario } = body;
+
+  const updateFields: Record<string, unknown> = { matricula, nombre, fecha_nacimiento, fecha_ingreso, foto_url };
+  if (typeof mostrar_cumpleanos === "boolean") updateFields.mostrar_cumpleanos = mostrar_cumpleanos;
+  if (typeof mostrar_aniversario === "boolean") updateFields.mostrar_aniversario = mostrar_aniversario;
 
   const { data, error } = await supabase
     .from("empleados")
-    .update({ matricula, nombre, fecha_nacimiento, fecha_ingreso, foto_url })
+    .update(updateFields)
     .eq("id", id)
     .select()
     .single();

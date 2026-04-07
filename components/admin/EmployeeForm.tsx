@@ -24,6 +24,12 @@ export function EmployeeForm({ empleado }: Props) {
     empleado?.fecha_ingreso ?? ""
   );
   const [fotoUrl, setFotoUrl] = useState(empleado?.foto_url ?? "");
+  const [mostrarCumpleanos, setMostrarCumpleanos] = useState(
+    empleado?.mostrar_cumpleanos ?? true
+  );
+  const [mostrarAniversario, setMostrarAniversario] = useState(
+    empleado?.mostrar_aniversario ?? true
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -67,6 +73,8 @@ export function EmployeeForm({ empleado }: Props) {
       fecha_nacimiento: fechaNacimiento,
       fecha_ingreso: fechaIngreso,
       foto_url: photoUrl,
+      mostrar_cumpleanos: mostrarCumpleanos,
+      mostrar_aniversario: mostrarAniversario,
     };
 
     const url = isEditing ? `/api/empleados/${empleado!.id}` : "/api/empleados";
@@ -178,6 +186,45 @@ export function EmployeeForm({ empleado }: Props) {
           placeholder="https://..."
           className="w-full mt-1 px-4 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
         />
+      </div>
+
+      <div className="flex gap-8 pt-2">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <span className="text-sm text-white/70">Mostrar en Cumpleaños</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={mostrarCumpleanos}
+            onClick={() => setMostrarCumpleanos(!mostrarCumpleanos)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              mostrarCumpleanos ? "bg-emerald-600" : "bg-gray-600"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                mostrarCumpleanos ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </label>
+        <label className="flex items-center gap-3 cursor-pointer">
+          <span className="text-sm text-white/70">Mostrar en Aniversarios</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={mostrarAniversario}
+            onClick={() => setMostrarAniversario(!mostrarAniversario)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              mostrarAniversario ? "bg-emerald-600" : "bg-gray-600"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                mostrarAniversario ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </label>
       </div>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}

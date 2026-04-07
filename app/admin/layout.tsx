@@ -29,6 +29,9 @@ export default async function AdminLayout({
           <a href="/admin/importar/aniversarios" className="text-white/60 hover:text-white text-sm transition-colors">
             Importar Aniversarios
           </a>
+          <a href="/admin/importar/exclusiones" className="text-white/60 hover:text-white text-sm transition-colors">
+            Importar Exclusiones
+          </a>
         </div>
         <div className="flex items-center gap-4">
           <a href="/" target="_blank" className="text-white/40 hover:text-white/70 text-sm transition-colors">

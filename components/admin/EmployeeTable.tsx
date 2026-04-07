@@ -1,10 +1,60 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Empleado } from "@/lib/domain/types";
+
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+        checked ? "bg-emerald-600" : "bg-gray-600"
+      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+    >
+      <span
+        className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+          checked ? "translate-x-[18px]" : "translate-x-[3px]"
+        }`}
+      />
+    </button>
+  );
+}
 
 export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
   const [search, setSearch] = useState("");
+  const [updating, setUpdating] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function toggleField(emp: Empleado, field: "mostrar_cumpleanos" | "mostrar_aniversario") {
+    setUpdating(`${emp.id}-${field}`);
+    await fetch(`/api/empleados/${emp.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        matricula: emp.matricula,
+        nombre: emp.nombre,
+        fecha_nacimiento: emp.fecha_nacimiento,
+        fecha_ingreso: emp.fecha_ingreso,
+        foto_url: emp.foto_url,
+        [field]: !emp[field],
+      }),
+    });
+    setUpdating(null);
+    router.refresh();
+  }
 
   const filtered = empleados.filter(
     (e) =>
@@ -39,6 +89,8 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
               <th className="px-6 py-3">Cumpleaños</th>
               <th className="px-6 py-3">Fecha Ingreso</th>
               <th className="px-6 py-3">Foto</th>
+              <th className="px-6 py-3 text-center">Mostrar Cumple</th>
+              <th className="px-6 py-3 text-center">Mostrar Aniv.</th>
               <th className="px-6 py-3"></th>
             </tr>
           </thead>
@@ -63,6 +115,20 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
                     <span className="text-white/30 text-sm">Sin foto</span>
                   )}
                 </td>
+                <td className="px-6 py-4 text-center">
+                  <Toggle
+                    checked={emp.mostrar_cumpleanos}
+                    onChange={() => toggleField(emp, "mostrar_cumpleanos")}
+                    disabled={updating === `${emp.id}-mostrar_cumpleanos`}
+                  />
+                </td>
+                <td className="px-6 py-4 text-center">
+                  <Toggle
+                    checked={emp.mostrar_aniversario}
+                    onChange={() => toggleField(emp, "mostrar_aniversario")}
+                    disabled={updating === `${emp.id}-mostrar_aniversario`}
+                  />
+                </td>
                 <td className="px-6 py-4">
                   <a
                     href={`/admin/empleados/${emp.id}/editar`}
@@ -75,7 +141,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-white/30">
+                <td colSpan={8} className="px-6 py-8 text-center text-white/30">
                   {search ? "Sin resultados" : "No hay empleados registrados"}
                 </td>
               </tr>

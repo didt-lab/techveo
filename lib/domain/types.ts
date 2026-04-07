@@ -5,6 +5,8 @@ export interface Empleado {
   fecha_nacimiento: string; // "YYYY-MM-DD"
   fecha_ingreso: string;    // "YYYY-MM-DD"
   foto_url: string | null;
+  mostrar_cumpleanos: boolean;
+  mostrar_aniversario: boolean;
   created_at: string;
 }
 

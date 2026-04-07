@@ -14,6 +14,13 @@ interface AnniversaryCsvRow {
   fecha_ingreso?: string;
 }
 
+interface ExclusionCsvRow {
+  matricula?: string;
+  nombre?: string;
+  tema?: string;
+  mes?: string;
+}
+
 const DATE_ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DATE_DMY_RE = /^\d{2}\/\d{2}\/\d{4}$/;
 
@@ -137,6 +144,71 @@ export function parseAnniversaryCsv(csvText: string): {
 
     seenMatriculas.add(matricula);
     valid.push({ matricula, nombre, fecha_ingreso: fechaNorm });
+  });
+
+  return { valid, errors };
+}
+
+export type ExclusionRecord = {
+  matricula: string;
+  tipo: "cumpleanos" | "aniversario";
+};
+
+/**
+ * Parses a CSV of exclusions. Expected columns: MATRÍCULA, NOMBRE, TEMA, MES.
+ * Only MATRÍCULA and TEMA are used. TEMA = "Cumpleaños" → cumpleanos, "Antigüedad" → aniversario.
+ */
+export function parseExclusionCsv(csvText: string): {
+  valid: ExclusionRecord[];
+  errors: ImportResult["errors"];
+} {
+  const { data } = Papa.parse<ExclusionCsvRow>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (h) =>
+      h
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""),
+  });
+
+  const valid: ExclusionRecord[] = [];
+  const errors: ImportResult["errors"] = [];
+
+  data.forEach((row, i) => {
+    const rowNum = i + 2;
+    const matricula = row.matricula?.trim();
+    const temaRaw = row.tema?.trim();
+
+    if (!matricula) {
+      errors.push({ row: rowNum, message: "Matrícula vacía" });
+      return;
+    }
+    if (!temaRaw) {
+      errors.push({ row: rowNum, message: "Tema vacío" });
+      return;
+    }
+
+    const temaNorm = temaRaw
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    let tipo: "cumpleanos" | "aniversario";
+    if (temaNorm.includes("cumpleano")) {
+      tipo = "cumpleanos";
+    } else if (temaNorm.includes("antigued")) {
+      tipo = "aniversario";
+    } else {
+      errors.push({
+        row: rowNum,
+        message: `Tema no reconocido: "${temaRaw}" — esperado: Cumpleaños o Antigüedad`,
+      });
+      return;
+    }
+
+    valid.push({ matricula, tipo });
   });
 
   return { valid, errors };

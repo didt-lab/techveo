@@ -13,18 +13,25 @@ export const revalidate = 300; // 5 min cache on Netlify
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from("empleados")
-      .select("*");
+    const [birthdayRes, anniversaryRes] = await Promise.all([
+      supabase
+        .from("empleados")
+        .select("*")
+        .eq("mostrar_cumpleanos", true),
+      supabase
+        .from("empleados")
+        .select("*")
+        .eq("mostrar_aniversario", true),
+    ]);
 
-    if (error) throw error;
+    if (birthdayRes.error) throw birthdayRes.error;
+    if (anniversaryRes.error) throw anniversaryRes.error;
 
-    const empleados = data as Empleado[];
     const now = new Date();
 
     const response: EventsResponse = {
-      cumpleanos: getBirthdaysInWindow(empleados, now),
-      aniversarios: getAnniversariesInMonth(empleados, now),
+      cumpleanos: getBirthdaysInWindow(birthdayRes.data as Empleado[], now),
+      aniversarios: getAnniversariesInMonth(anniversaryRes.data as Empleado[], now),
       fetchedAt: now.toISOString(),
     };
 
