@@ -33,8 +33,43 @@ function Toggle({
   );
 }
 
+const MESES = [
+  { value: "", label: "Todos los meses" },
+  { value: "1", label: "Enero" },
+  { value: "2", label: "Febrero" },
+  { value: "3", label: "Marzo" },
+  { value: "4", label: "Abril" },
+  { value: "5", label: "Mayo" },
+  { value: "6", label: "Junio" },
+  { value: "7", label: "Julio" },
+  { value: "8", label: "Agosto" },
+  { value: "9", label: "Septiembre" },
+  { value: "10", label: "Octubre" },
+  { value: "11", label: "Noviembre" },
+  { value: "12", label: "Diciembre" },
+];
+
+function getMonth(dateStr: string): number {
+  const parts = dateStr.split("-");
+  return parts.length >= 2 ? parseInt(parts[1], 10) : 0;
+}
+
+/** Returns "MM-DD" for month-day sorting */
+function getMonthDay(dateStr: string): string {
+  const parts = dateStr.split("-");
+  if (parts.length < 3) return "00-00";
+  return `${parts[1]}-${parts[2]}`;
+}
+
+type SortField = "nombre" | "fecha_nacimiento" | "fecha_ingreso" | "matricula";
+type SortDir = "asc" | "desc";
+
 export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
   const [search, setSearch] = useState("");
+  const [mesCumple, setMesCumple] = useState("");
+  const [mesIngreso, setMesIngreso] = useState("");
+  const [sortField, setSortField] = useState<SortField>("nombre");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [updating, setUpdating] = useState<string | null>(null);
   const router = useRouter();
 
@@ -56,25 +91,79 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     router.refresh();
   }
 
-  const filtered = empleados.filter(
-    (e) =>
-      e.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      e.matricula.toLowerCase().includes(search.toLowerCase())
-  );
+  function handleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  const filtered = empleados
+    .filter(
+      (e) =>
+        e.nombre.toLowerCase().includes(search.toLowerCase()) ||
+        e.matricula.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((e) => (mesCumple ? getMonth(e.fecha_nacimiento) === parseInt(mesCumple, 10) : true))
+    .filter((e) => (mesIngreso ? getMonth(e.fecha_ingreso) === parseInt(mesIngreso, 10) : true))
+    .sort((a, b) => {
+      let cmp: number;
+      if (sortField === "fecha_nacimiento" || sortField === "fecha_ingreso") {
+        // Sort by month-day only (MM-DD) to see upcoming dates
+        const mdA = getMonthDay(a[sortField]);
+        const mdB = getMonthDay(b[sortField]);
+        cmp = mdA.localeCompare(mdB);
+      } else {
+        cmp = a[sortField].localeCompare(b[sortField]);
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-4 mb-6 flex-wrap">
         <input
           type="text"
           placeholder="Buscar por nombre o matrícula…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2 bg-gray-800 border border-white/10 rounded-lg text-white w-80 focus:outline-none focus:border-white/30"
+          className="px-4 py-2 bg-gray-800 border border-white/10 rounded-lg text-white w-72 focus:outline-none focus:border-white/30"
         />
+        <select
+          value={mesCumple}
+          onChange={(e) => setMesCumple(e.target.value)}
+          className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
+        >
+          {MESES.map((m) => (
+            <option key={`cumple-${m.value}`} value={m.value}>
+              {m.value ? m.label : "Mes cumpleaños"}
+            </option>
+          ))}
+        </select>
+        <select
+          value={mesIngreso}
+          onChange={(e) => setMesIngreso(e.target.value)}
+          className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
+        >
+          {MESES.map((m) => (
+            <option key={`ingreso-${m.value}`} value={m.value}>
+              {m.value ? m.label : "Mes ingreso"}
+            </option>
+          ))}
+        </select>
+        {(mesCumple || mesIngreso) && (
+          <button
+            onClick={() => { setMesCumple(""); setMesIngreso(""); }}
+            className="px-3 py-2 text-white/50 hover:text-white text-sm transition-colors"
+          >
+            Limpiar filtros
+          </button>
+        )}
         <a
           href="/admin/empleados/nuevo"
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-semibold transition-colors"
+          className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-semibold transition-colors"
         >
           + Nuevo empleado
         </a>
@@ -84,10 +173,42 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-white/10 text-white/50 text-sm uppercase tracking-wider">
-              <th className="px-6 py-3">Matrícula</th>
-              <th className="px-6 py-3">Nombre</th>
-              <th className="px-6 py-3">Cumpleaños</th>
-              <th className="px-6 py-3">Fecha Ingreso</th>
+              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("matricula")}>
+                <span className="flex items-center gap-1">
+                  Matrícula
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "matricula" ? "text-white" : "text-white/20"}`}>
+                    <span className={sortField === "matricula" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
+                    <span className={sortField === "matricula" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  </span>
+                </span>
+              </th>
+              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("nombre")}>
+                <span className="flex items-center gap-1">
+                  Nombre
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "nombre" ? "text-white" : "text-white/20"}`}>
+                    <span className={sortField === "nombre" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
+                    <span className={sortField === "nombre" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  </span>
+                </span>
+              </th>
+              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("fecha_nacimiento")}>
+                <span className="flex items-center gap-1">
+                  Cumpleaños
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_nacimiento" ? "text-white" : "text-white/20"}`}>
+                    <span className={sortField === "fecha_nacimiento" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
+                    <span className={sortField === "fecha_nacimiento" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  </span>
+                </span>
+              </th>
+              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("fecha_ingreso")}>
+                <span className="flex items-center gap-1">
+                  Fecha Ingreso
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_ingreso" ? "text-white" : "text-white/20"}`}>
+                    <span className={sortField === "fecha_ingreso" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
+                    <span className={sortField === "fecha_ingreso" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  </span>
+                </span>
+              </th>
               <th className="px-6 py-3">Foto</th>
               <th className="px-6 py-3 text-center">Mostrar Cumple</th>
               <th className="px-6 py-3 text-center">Mostrar Aniv.</th>
