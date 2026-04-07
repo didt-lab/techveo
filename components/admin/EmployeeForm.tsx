@@ -50,6 +50,7 @@ export function EmployeeForm({ empleado }: Props) {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function uploadPhoto(): Promise<string | null> {
     const file = fileRef.current?.files?.[0];
@@ -78,6 +79,7 @@ export function EmployeeForm({ empleado }: Props) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     const photoUrl = await uploadPhoto();
     if (error) {
@@ -108,6 +110,13 @@ export function EmployeeForm({ empleado }: Props) {
       const data = await res.json();
       setError(data.error ?? "Error al guardar");
       setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+
+    if (isEditing) {
+      setSuccess("Registro actualizado");
       return;
     }
 
@@ -276,6 +285,11 @@ export function EmployeeForm({ empleado }: Props) {
         </label>
       </div>
 
+      {success && (
+        <div className="p-3 bg-emerald-900/50 border border-emerald-700/50 rounded-lg">
+          <p className="text-emerald-400 text-sm font-semibold">{success}</p>
+        </div>
+      )}
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
       <div className="flex gap-4 pt-4">
