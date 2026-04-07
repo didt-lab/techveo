@@ -1,9 +1,26 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Empleado } from "@/lib/domain/types";
+
+function getNavIds(currentId: string | undefined): { prev: string | null; next: string | null } {
+  if (!currentId) return { prev: null, next: null };
+  try {
+    const raw = sessionStorage.getItem("techveo:employee-order");
+    if (!raw) return { prev: null, next: null };
+    const ids: string[] = JSON.parse(raw);
+    const idx = ids.indexOf(currentId);
+    if (idx === -1) return { prev: null, next: null };
+    return {
+      prev: idx > 0 ? ids[idx - 1] : null,
+      next: idx < ids.length - 1 ? ids[idx + 1] : null,
+    };
+  } catch {
+    return { prev: null, next: null };
+  }
+}
 
 interface Props {
   empleado?: Empleado;
@@ -14,6 +31,7 @@ export function EmployeeForm({ empleado }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
+  const nav = useMemo(() => getNavIds(empleado?.id), [empleado?.id]);
 
   const [matricula, setMatricula] = useState(empleado?.matricula ?? "");
   const [nombre, setNombre] = useState(empleado?.nombre ?? "");
@@ -93,8 +111,7 @@ export function EmployeeForm({ empleado }: Props) {
       return;
     }
 
-    router.push("/admin");
-    router.refresh();
+    router.back();
   }
 
   async function handleDelete() {
@@ -111,12 +128,44 @@ export function EmployeeForm({ empleado }: Props) {
       return;
     }
 
-    router.push("/admin");
-    router.refresh();
+    router.back();
   }
 
   return (
     <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors"
+        >
+          &larr; Regresar
+        </button>
+        {isEditing && (
+          <div className="flex items-center gap-3">
+            {nav.prev ? (
+              <a
+                href={`/admin/empleados/${nav.prev}/editar`}
+                className="flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors"
+              >
+                &larr; Anterior
+              </a>
+            ) : (
+              <span className="text-white/20 text-sm">&larr; Anterior</span>
+            )}
+            {nav.next ? (
+              <a
+                href={`/admin/empleados/${nav.next}/editar`}
+                className="flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors"
+              >
+                Siguiente &rarr;
+              </a>
+            ) : (
+              <span className="text-white/20 text-sm">Siguiente &rarr;</span>
+            )}
+          </div>
+        )}
+      </div>
       <div>
         <label className="block text-sm text-white/70 mb-1">Matrícula</label>
         <input

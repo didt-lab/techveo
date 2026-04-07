@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { EmployeeTable } from "@/components/admin/EmployeeTable";
 import { redirect } from "next/navigation";
@@ -19,7 +20,9 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Empleados</h1>
-      <EmployeeTable empleados={(empleados as Empleado[]) ?? []} />
+      <Suspense>
+        <EmployeeTable empleados={(empleados as Empleado[]) ?? []} />
+      </Suspense>
     </div>
   );
 }

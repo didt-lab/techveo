@@ -30,4 +30,5 @@ export default async function EditEmployeePage({
       <EmployeeForm empleado={empleado as Empleado} />
     </div>
   );
+
 }

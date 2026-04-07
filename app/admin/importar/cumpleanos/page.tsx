@@ -10,11 +10,19 @@ export default async function ImportBirthdaysPage() {
   if (!user) redirect("/admin/login");
 
   return (
-    <CsvUploader
-      title="Importar Cumpleaños"
-      description="Carga un archivo CSV con las fechas de cumpleaños de los empleados"
-      expectedColumns="matricula, nombre, fecha_nacimiento"
-      apiEndpoint="/api/import/cumpleanos"
-    />
+    <div>
+      <a
+        href="/admin"
+        className="inline-flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors mb-4"
+      >
+        <span>&larr;</span> Regresar
+      </a>
+      <CsvUploader
+        title="Importar Cumpleaños"
+        description="Carga un archivo CSV con las fechas de cumpleaños de los empleados"
+        expectedColumns="matricula, nombre, fecha_nacimiento"
+        apiEndpoint="/api/import/cumpleanos"
+      />
+    </div>
   );
 }

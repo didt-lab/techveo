@@ -10,11 +10,19 @@ export default async function ImportAnniversariesPage() {
   if (!user) redirect("/admin/login");
 
   return (
-    <CsvUploader
-      title="Importar Aniversarios"
-      description="Carga un archivo CSV con las fechas de ingreso de los empleados"
-      expectedColumns="matricula, nombre, fecha_ingreso"
-      apiEndpoint="/api/import/aniversarios"
-    />
+    <div>
+      <a
+        href="/admin"
+        className="inline-flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors mb-4"
+      >
+        <span>&larr;</span> Regresar
+      </a>
+      <CsvUploader
+        title="Importar Aniversarios"
+        description="Carga un archivo CSV con las fechas de ingreso de los empleados"
+        expectedColumns="matricula, nombre, fecha_ingreso"
+        apiEndpoint="/api/import/aniversarios"
+      />
+    </div>
   );
 }

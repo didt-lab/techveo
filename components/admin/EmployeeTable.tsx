@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Empleado } from "@/lib/domain/types";
 
 function Toggle({
@@ -65,13 +65,31 @@ type SortField = "nombre" | "fecha_nacimiento" | "fecha_ingreso" | "matricula";
 type SortDir = "asc" | "desc";
 
 export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
-  const [search, setSearch] = useState("");
-  const [mesCumple, setMesCumple] = useState("");
-  const [mesIngreso, setMesIngreso] = useState("");
-  const [sortField, setSortField] = useState<SortField>("nombre");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [updating, setUpdating] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [search, setSearch] = useState(searchParams.get("q") ?? "");
+  const [mesCumple, setMesCumple] = useState(searchParams.get("mc") ?? "");
+  const [mesIngreso, setMesIngreso] = useState(searchParams.get("mi") ?? "");
+  const [sortField, setSortField] = useState<SortField>(
+    (searchParams.get("sf") as SortField) || "nombre"
+  );
+  const [sortDir, setSortDir] = useState<SortDir>(
+    (searchParams.get("sd") as SortDir) || "asc"
+  );
+  const [updating, setUpdating] = useState<string | null>(null);
+
+  const syncUrl = useCallback(
+    (overrides: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [k, v] of Object.entries(overrides)) {
+        if (v) params.set(k, v);
+        else params.delete(k);
+      }
+      router.replace(`/admin?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router]
+  );
 
   async function toggleField(emp: Empleado, field: "mostrar_cumpleanos" | "mostrar_aniversario") {
     setUpdating(`${emp.id}-${field}`);
@@ -91,13 +109,37 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     router.refresh();
   }
 
+  function handleSearch(val: string) {
+    setSearch(val);
+    syncUrl({ q: val, mc: mesCumple, mi: mesIngreso, sf: sortField, sd: sortDir });
+  }
+
+  function handleMesCumple(val: string) {
+    setMesCumple(val);
+    syncUrl({ q: search, mc: val, mi: mesIngreso, sf: sortField, sd: sortDir });
+  }
+
+  function handleMesIngreso(val: string) {
+    setMesIngreso(val);
+    syncUrl({ q: search, mc: mesCumple, mi: val, sf: sortField, sd: sortDir });
+  }
+
+  function handleClearFilters() {
+    setMesCumple("");
+    setMesIngreso("");
+    syncUrl({ q: search, mc: "", mi: "", sf: sortField, sd: sortDir });
+  }
+
   function handleSort(field: SortField) {
+    let newDir: SortDir;
     if (sortField === field) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc");
+      newDir = sortDir === "asc" ? "desc" : "asc";
     } else {
-      setSortField(field);
-      setSortDir("asc");
+      newDir = "asc";
     }
+    setSortField(field);
+    setSortDir(newDir);
+    syncUrl({ q: search, mc: mesCumple, mi: mesIngreso, sf: field, sd: newDir });
   }
 
   const filtered = empleados
@@ -121,6 +163,14 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
       return sortDir === "asc" ? cmp : -cmp;
     });
 
+  // Persist filtered order for prev/next navigation in edit form
+  useEffect(() => {
+    sessionStorage.setItem(
+      "techveo:employee-order",
+      JSON.stringify(filtered.map((e) => e.id))
+    );
+  }, [filtered]);
+
   return (
     <div>
       <div className="flex items-center gap-4 mb-6 flex-wrap">
@@ -128,12 +178,12 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
           type="text"
           placeholder="Buscar por nombre o matrícula…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="px-4 py-2 bg-gray-800 border border-white/10 rounded-lg text-white w-72 focus:outline-none focus:border-white/30"
         />
         <select
           value={mesCumple}
-          onChange={(e) => setMesCumple(e.target.value)}
+          onChange={(e) => handleMesCumple(e.target.value)}
           className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
         >
           {MESES.map((m) => (
@@ -144,7 +194,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         </select>
         <select
           value={mesIngreso}
-          onChange={(e) => setMesIngreso(e.target.value)}
+          onChange={(e) => handleMesIngreso(e.target.value)}
           className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
         >
           {MESES.map((m) => (
@@ -155,7 +205,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         </select>
         {(mesCumple || mesIngreso) && (
           <button
-            onClick={() => { setMesCumple(""); setMesIngreso(""); }}
+            onClick={handleClearFilters}
             className="px-3 py-2 text-white/50 hover:text-white text-sm transition-colors"
           >
             Limpiar filtros
