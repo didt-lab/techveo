@@ -1,6 +1,6 @@
 import { getMonth, getDate, getYear, addDays, format } from "date-fns";
 import { es } from "date-fns/locale";
-import type { Empleado, BirthdayEvent, AnniversaryEvent } from "./types";
+import type { Empleado, BirthdayEvent, AnniversaryEvent, NewHireEvent } from "./types";
 
 /**
  * Parse "YYYY-MM-DD" into { month (1-12), day (1-31), year }.
@@ -102,6 +102,52 @@ export function getAnniversariesInMonth(
     const pa = parseDateString(a.empleado.fecha_ingreso)!;
     const pb = parseDateString(b.empleado.fecha_ingreso)!;
     return pa.day - pb.day;
+  });
+
+  return results;
+}
+
+/**
+ * Returns employees whose fecha_ingreso falls within the last 30 days.
+ */
+export function getNewHiresInWindow(
+  empleados: Empleado[],
+  referenceDate: Date = new Date()
+): NewHireEvent[] {
+  const refYear = getYear(referenceDate);
+  const refMonth = getMonth(referenceDate) + 1;
+  const refDay = getDate(referenceDate);
+
+  const refDays = refYear * 365 + refMonth * 30 + refDay;
+
+  const results: NewHireEvent[] = [];
+
+  for (const emp of empleados) {
+    const parsed = parseDateString(emp.fecha_ingreso);
+    if (!parsed) continue;
+
+    const empDays = parsed.year * 365 + parsed.month * 30 + parsed.day;
+    const diff = refDays - empDays;
+
+    if (diff >= 0 && diff <= 30) {
+      results.push({
+        empleado: emp,
+        fechaIngreso: format(
+          new Date(2000, parsed.month - 1, parsed.day),
+          "d 'de' MMMM",
+          { locale: es }
+        ),
+      });
+    }
+  }
+
+  // Sort by fecha_ingreso descending (most recent first)
+  results.sort((a, b) => {
+    const pa = parseDateString(a.empleado.fecha_ingreso)!;
+    const pb = parseDateString(b.empleado.fecha_ingreso)!;
+    const daysA = pa.year * 365 + pa.month * 30 + pa.day;
+    const daysB = pb.year * 365 + pb.month * 30 + pb.day;
+    return daysB - daysA;
   });
 
   return results;

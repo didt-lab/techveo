@@ -49,9 +49,23 @@ const MESES = [
   { value: "12", label: "Diciembre" },
 ];
 
+const ANTIGUEDAD = [
+  { value: "", label: "Antigüedad" },
+  { value: "5", label: "5+ años" },
+  { value: "10", label: "10+ años" },
+  { value: "20", label: "20+ años" },
+];
+
 function getMonth(dateStr: string): number {
   const parts = dateStr.split("-");
   return parts.length >= 2 ? parseInt(parts[1], 10) : 0;
+}
+
+function getYearsOfService(fechaIngreso: string): number {
+  const parts = fechaIngreso.split("-");
+  if (parts.length < 1) return 0;
+  const year = parseInt(parts[0], 10);
+  return new Date().getFullYear() - year;
 }
 
 /** Returns "MM-DD" for month-day sorting */
@@ -71,6 +85,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [mesCumple, setMesCumple] = useState(searchParams.get("mc") ?? "");
   const [mesIngreso, setMesIngreso] = useState(searchParams.get("mi") ?? "");
+  const [minAnios, setMinAnios] = useState(searchParams.get("ma") ?? "");
   const [sortField, setSortField] = useState<SortField>(
     (searchParams.get("sf") as SortField) || "nombre"
   );
@@ -109,25 +124,35 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     router.refresh();
   }
 
+  function allFilters(overrides: Record<string, string> = {}) {
+    return { q: search, mc: mesCumple, mi: mesIngreso, ma: minAnios, sf: sortField, sd: sortDir, ...overrides };
+  }
+
   function handleSearch(val: string) {
     setSearch(val);
-    syncUrl({ q: val, mc: mesCumple, mi: mesIngreso, sf: sortField, sd: sortDir });
+    syncUrl(allFilters({ q: val }));
   }
 
   function handleMesCumple(val: string) {
     setMesCumple(val);
-    syncUrl({ q: search, mc: val, mi: mesIngreso, sf: sortField, sd: sortDir });
+    syncUrl(allFilters({ mc: val }));
   }
 
   function handleMesIngreso(val: string) {
     setMesIngreso(val);
-    syncUrl({ q: search, mc: mesCumple, mi: val, sf: sortField, sd: sortDir });
+    syncUrl(allFilters({ mi: val }));
+  }
+
+  function handleMinAnios(val: string) {
+    setMinAnios(val);
+    syncUrl(allFilters({ ma: val }));
   }
 
   function handleClearFilters() {
     setMesCumple("");
     setMesIngreso("");
-    syncUrl({ q: search, mc: "", mi: "", sf: sortField, sd: sortDir });
+    setMinAnios("");
+    syncUrl(allFilters({ mc: "", mi: "", ma: "" }));
   }
 
   function handleSort(field: SortField) {
@@ -139,7 +164,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     }
     setSortField(field);
     setSortDir(newDir);
-    syncUrl({ q: search, mc: mesCumple, mi: mesIngreso, sf: field, sd: newDir });
+    syncUrl(allFilters({ sf: field, sd: newDir }));
   }
 
   const filtered = empleados
@@ -150,6 +175,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     )
     .filter((e) => (mesCumple ? getMonth(e.fecha_nacimiento) === parseInt(mesCumple, 10) : true))
     .filter((e) => (mesIngreso ? getMonth(e.fecha_ingreso) === parseInt(mesIngreso, 10) : true))
+    .filter((e) => (minAnios ? getYearsOfService(e.fecha_ingreso) >= parseInt(minAnios, 10) : true))
     .sort((a, b) => {
       let cmp: number;
       if (sortField === "fecha_nacimiento" || sortField === "fecha_ingreso") {
@@ -203,7 +229,18 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
             </option>
           ))}
         </select>
-        {(mesCumple || mesIngreso) && (
+        <select
+          value={minAnios}
+          onChange={(e) => handleMinAnios(e.target.value)}
+          className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
+        >
+          {ANTIGUEDAD.map((a) => (
+            <option key={`ant-${a.value}`} value={a.value}>
+              {a.label}
+            </option>
+          ))}
+        </select>
+        {(mesCumple || mesIngreso || minAnios) && (
           <button
             onClick={handleClearFilters}
             className="px-3 py-2 text-white/50 hover:text-white text-sm transition-colors"

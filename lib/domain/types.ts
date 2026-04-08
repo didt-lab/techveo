@@ -26,6 +26,16 @@ export interface EventsResponse {
   fetchedAt: string;
 }
 
+export interface NewHireEvent {
+  empleado: Empleado;
+  fechaIngreso: string; // "8 de Abril de 2026" — formatted for display
+}
+
+export interface NewHiresResponse {
+  nuevosIngresos: NewHireEvent[];
+  fetchedAt: string;
+}
+
 export interface ImportResult {
   created: number;
   updated: number;

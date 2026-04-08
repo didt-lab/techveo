@@ -137,19 +137,18 @@ export function EmployeeForm({ empleado }: Props) {
       return;
     }
 
-    router.back();
+    router.push("/admin");
   }
 
   return (
     <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
       <div className="flex items-center justify-between mb-2">
-        <button
-          type="button"
-          onClick={() => router.back()}
+        <a
+          href="/admin"
           className="flex items-center gap-1 text-white/50 hover:text-white text-sm transition-colors"
         >
           &larr; Regresar
-        </button>
+        </a>
         {isEditing && (
           <div className="flex items-center gap-3">
             {nav.prev ? (

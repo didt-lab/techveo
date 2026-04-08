@@ -14,6 +14,13 @@ interface AnniversaryCsvRow {
   fecha_ingreso?: string;
 }
 
+interface EmployeeCsvRow {
+  matricula?: string;
+  nombre?: string;
+  fecha_nacimiento?: string;
+  fecha_ingreso?: string;
+}
+
 interface ExclusionCsvRow {
   matricula?: string;
   nombre?: string;
@@ -144,6 +151,62 @@ export function parseAnniversaryCsv(csvText: string): {
 
     seenMatriculas.add(matricula);
     valid.push({ matricula, nombre, fecha_ingreso: fechaNorm });
+  });
+
+  return { valid, errors };
+}
+
+/**
+ * Parses a general employee CSV. Expected columns: matricula, nombre, fecha_nacimiento, fecha_ingreso.
+ * Both date columns accept YYYY-MM-DD or DD/MM/YYYY.
+ */
+export function parseEmployeeCsv(csvText: string): {
+  valid: { matricula: string; nombre: string; fecha_nacimiento: string; fecha_ingreso: string }[];
+  errors: ImportResult["errors"];
+} {
+  const { data } = Papa.parse<EmployeeCsvRow>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (h) =>
+      h.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+  });
+
+  const valid: { matricula: string; nombre: string; fecha_nacimiento: string; fecha_ingreso: string }[] = [];
+  const errors: ImportResult["errors"] = [];
+  const seenMatriculas = new Set<string>();
+
+  data.forEach((row, i) => {
+    const rowNum = i + 2;
+    const matricula = row.matricula?.trim();
+    const nombre = row.nombre?.trim();
+    const nacRaw = row.fecha_nacimiento?.trim();
+    const ingRaw = row.fecha_ingreso?.trim();
+
+    if (!matricula) {
+      errors.push({ row: rowNum, message: "Matrícula vacía" });
+      return;
+    }
+    if (!nombre) {
+      errors.push({ row: rowNum, message: "Nombre vacío" });
+      return;
+    }
+    const nacNorm = nacRaw ? normalizeDate(nacRaw) : null;
+    if (!nacNorm) {
+      errors.push({ row: rowNum, message: `Fecha nacimiento inválida: "${nacRaw ?? ""}"` });
+      return;
+    }
+    const ingNorm = ingRaw ? normalizeDate(ingRaw) : null;
+    if (!ingNorm) {
+      errors.push({ row: rowNum, message: `Fecha ingreso inválida: "${ingRaw ?? ""}"` });
+      return;
+    }
+    if (seenMatriculas.has(matricula)) {
+      errors.push({ row: rowNum, message: `Matrícula duplicada: ${matricula}` });
+      return;
+    }
+
+    seenMatriculas.add(matricula);
+    valid.push({ matricula, nombre, fecha_nacimiento: nacNorm, fecha_ingreso: ingNorm });
   });
 
   return { valid, errors };
