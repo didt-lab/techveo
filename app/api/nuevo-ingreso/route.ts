@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getNewHiresInWindow } from "@/lib/domain/events";
+import { getNewHiresInMonth } from "@/lib/domain/events";
 import type { Empleado, NewHiresResponse } from "@/lib/domain/types";
 
 const supabase = createClient(
@@ -21,7 +21,7 @@ export async function GET() {
     const now = new Date();
 
     const response: NewHiresResponse = {
-      nuevosIngresos: getNewHiresInWindow(data as Empleado[], now),
+      nuevosIngresos: getNewHiresInMonth(data as Empleado[], now),
       fetchedAt: now.toISOString(),
     };
 

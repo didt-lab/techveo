@@ -88,7 +88,8 @@ export function getAnniversariesInMonth(
 
     if (parsed.month === currentMonth && parsed.year < currentYear) {
       const anos = currentYear - parsed.year;
-      if (anos >= 5) {
+      const milestones = [5, 10, 15, 20, 25];
+      if (milestones.includes(anos)) {
         results.push({
           empleado: emp,
           anosServicio: anos,
@@ -108,17 +109,14 @@ export function getAnniversariesInMonth(
 }
 
 /**
- * Returns employees whose fecha_ingreso falls within the last 30 days.
+ * Returns employees whose fecha_ingreso falls in the current month and year.
  */
-export function getNewHiresInWindow(
+export function getNewHiresInMonth(
   empleados: Empleado[],
   referenceDate: Date = new Date()
 ): NewHireEvent[] {
-  const refYear = getYear(referenceDate);
-  const refMonth = getMonth(referenceDate) + 1;
-  const refDay = getDate(referenceDate);
-
-  const refDays = refYear * 365 + refMonth * 30 + refDay;
+  const currentMonth = getMonth(referenceDate) + 1;
+  const currentYear = getYear(referenceDate);
 
   const results: NewHireEvent[] = [];
 
@@ -126,10 +124,7 @@ export function getNewHiresInWindow(
     const parsed = parseDateString(emp.fecha_ingreso);
     if (!parsed) continue;
 
-    const empDays = parsed.year * 365 + parsed.month * 30 + parsed.day;
-    const diff = refDays - empDays;
-
-    if (diff >= 0 && diff <= 30) {
+    if (parsed.month === currentMonth && parsed.year === currentYear) {
       results.push({
         empleado: emp,
         fechaIngreso: format(
@@ -145,9 +140,7 @@ export function getNewHiresInWindow(
   results.sort((a, b) => {
     const pa = parseDateString(a.empleado.fecha_ingreso)!;
     const pb = parseDateString(b.empleado.fecha_ingreso)!;
-    const daysA = pa.year * 365 + pa.month * 30 + pa.day;
-    const daysB = pb.year * 365 + pb.month * 30 + pb.day;
-    return daysB - daysA;
+    return pb.day - pa.day;
   });
 
   return results;

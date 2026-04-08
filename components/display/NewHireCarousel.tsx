@@ -6,7 +6,7 @@ import { NewHireSlide } from "./NewHireSlide";
 import { CapsuleHeader } from "./CapsuleHeader";
 import type { NewHireEvent } from "@/lib/domain/types";
 
-const SLIDE_MS = 8000;
+const SLIDE_MS = 6000;
 
 export function NewHireCarousel({
   nuevosIngresos,
