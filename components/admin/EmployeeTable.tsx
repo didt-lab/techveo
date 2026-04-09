@@ -179,10 +179,8 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     .sort((a, b) => {
       let cmp: number;
       if (sortField === "fecha_nacimiento" || sortField === "fecha_ingreso") {
-        // Sort by month-day only (MM-DD) to see upcoming dates
-        const mdA = getMonthDay(a[sortField]);
-        const mdB = getMonthDay(b[sortField]);
-        cmp = mdA.localeCompare(mdB);
+        // Sort chronologically by full date (YYYY-MM-DD)
+        cmp = a[sortField].localeCompare(b[sortField]);
       } else {
         cmp = a[sortField].localeCompare(b[sortField]);
       }
