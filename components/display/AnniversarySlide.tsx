@@ -28,28 +28,28 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
       transition={{ duration: 0.3 }}
       className="absolute inset-0 flex items-center justify-center px-16"
     >
-      <div className="flex items-center gap-16 w-full max-w-7xl">
+      <div className="flex items-center gap-10 w-full max-w-5xl">
         {/* Foto + nombre en columna */}
         <div className="flex flex-col items-center flex-shrink-0">
           {empleado.foto_url ? (
             <img
               src={empleado.foto_url}
               alt={empleado.nombre}
-              className="w-80 h-80 object-cover rounded-2xl shadow-lg"
+              className="w-48 h-48 object-cover rounded-2xl shadow-lg"
             />
           ) : (
             <InitialsAvatar
               nombre={empleado.nombre}
-              className="w-80 h-80 rounded-2xl shadow-lg"
+              className="w-48 h-48 rounded-2xl shadow-lg"
             />
           )}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-teal-600 px-8 py-4 rounded-xl -mt-6 shadow-md"
+            className="bg-teal-600 px-5 py-2 rounded-xl -mt-4 shadow-md"
           >
-            <p className="text-white text-center text-5xl font-bold leading-snug">
+            <p className="text-white text-center text-3xl font-bold leading-snug">
               {empleado.nombre}
             </p>
           </motion.div>
@@ -61,7 +61,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-6xl font-extrabold text-gray-800 text-center uppercase leading-tight mb-8"
+            className="text-4xl font-extrabold text-gray-800 text-center uppercase leading-tight mb-5"
           >
             Reconocimiento<br />por tus a{"\u00f1"}os<br />laborando en la DIDT
           </motion.h2>
@@ -70,7 +70,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-9xl font-extrabold text-teal-600 mb-2"
+            className="text-7xl font-extrabold text-teal-600 mb-1"
           >
             {event.anosServicio} a{"\u00f1"}o{event.anosServicio !== 1 ? "s" : ""}
           </motion.p>
@@ -79,7 +79,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.7 }}
-            className="text-4xl text-gray-500 font-bold mb-8"
+            className="text-2xl text-gray-500 font-bold mb-5"
           >
             {formatMonthYear(empleado.fecha_ingreso)}
           </motion.p>
@@ -90,7 +90,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             transition={{ duration: 0.4, delay: 0.9 }}
             className="border-t-2 border-gray-200 pt-4 mb-6"
           >
-            <p className="text-gray-600 text-4xl font-bold italic text-center">
+            <p className="text-gray-600 text-2xl font-bold italic text-center">
               Gracias por hacer historia<br />con nosotros
             </p>
           </motion.div>
@@ -99,7 +99,7 @@ export function AnniversarySlide({ event }: { event: AnniversaryEvent }) {
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 1.1 }}
-            className="text-8xl"
+            className="text-5xl"
           >
             🏆
           </motion.div>

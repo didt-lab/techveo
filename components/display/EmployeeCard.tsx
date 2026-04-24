@@ -27,28 +27,28 @@ export function EmployeeCard(props: Props) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: props.index * 0.3 }}
-      className="flex items-center gap-14"
+      className="flex items-center gap-11"
     >
       {/* Foto circular */}
       {empleado.foto_url ? (
         <img
           src={empleado.foto_url}
           alt={empleado.nombre}
-          className="w-56 h-56 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0"
+          className="w-44 h-44 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0"
         />
       ) : (
         <InitialsAvatar
           nombre={empleado.nombre}
-          className="w-56 h-56 rounded-full border-4 border-white shadow-lg flex-shrink-0"
+          className="w-44 h-44 rounded-full border-4 border-white shadow-lg flex-shrink-0"
         />
       )}
 
       {/* Info */}
       <div className="flex flex-col items-start">
-        <span className="bg-teal-500 text-white text-5xl font-semibold px-10 py-3 rounded-full shadow whitespace-nowrap">
+        <span className="bg-teal-500 text-white text-4xl font-semibold px-8 py-2.5 rounded-full shadow whitespace-nowrap">
           {empleado.nombre}
         </span>
-        <p className="text-gray-700 text-6xl font-bold mt-5 ml-2">
+        <p className="text-gray-700 text-5xl font-bold mt-4 ml-2">
           {isBirthday
             ? props.event.fechaCumple
             : `${props.event.anosServicio} ${props.event.anosServicio === 1 ? "a\u00f1o" : "a\u00f1os"} de servicio`}
