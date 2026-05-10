@@ -27,7 +27,7 @@ export function EmployeeCard(props: Props) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: props.index * 0.3 }}
-      className="flex items-center gap-11"
+      className="flex items-center gap-11 pl-2"
     >
       {/* Foto circular */}
       {empleado.foto_url ? (
