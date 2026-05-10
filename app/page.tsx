@@ -5,25 +5,27 @@ import { useQuery } from "@tanstack/react-query";
 import { Carousel } from "@/components/display/Carousel";
 import { Clock } from "@/components/display/Clock";
 import { EmptyState } from "@/components/display/EmptyState";
-import type { EventsResponse } from "@/lib/domain/types";
+import type { EventsResponse, NewHiresResponse } from "@/lib/domain/types";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
-const CACHE_KEY = "techveo:last-events";
+const CACHE_KEY_EVENTS = "techveo:last-events";
+const CACHE_KEY_NEWHIRES = "techveo:last-newhires";
 
-function loadCache(): EventsResponse | null {
+function loadEventsCache(): EventsResponse | null {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(CACHE_KEY_EVENTS);
     return raw ? (JSON.parse(raw) as EventsResponse) : null;
   } catch {
     return null;
   }
 }
 
-function saveCache(data: EventsResponse) {
+function loadNewHiresCache(): NewHiresResponse | null {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    const raw = localStorage.getItem(CACHE_KEY_NEWHIRES);
+    return raw ? (JSON.parse(raw) as NewHiresResponse) : null;
   } catch {
-    // localStorage unavailable in some kiosk setups
+    return null;
   }
 }
 
@@ -33,31 +35,50 @@ async function fetchEvents(): Promise<EventsResponse> {
   return res.json();
 }
 
+async function fetchNewHires(): Promise<NewHiresResponse> {
+  const res = await fetch("/api/nuevo-ingreso", { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
 export default function DisplayPage() {
-  const { data, isPending } = useQuery<EventsResponse>({
+  const { data: eventsData, isPending: eventsPending } = useQuery<EventsResponse>({
     queryKey: ["events"],
     queryFn: fetchEvents,
     refetchInterval: POLL_INTERVAL_MS,
-    initialData: loadCache() ?? undefined,
+    initialData: loadEventsCache() ?? undefined,
+  });
+
+  const { data: newHiresData, isPending: newHiresPending } = useQuery<NewHiresResponse>({
+    queryKey: ["nuevo-ingreso"],
+    queryFn: fetchNewHires,
+    refetchInterval: POLL_INTERVAL_MS,
+    initialData: loadNewHiresCache() ?? undefined,
   });
 
   // Save to cache on successful fetch
   useEffect(() => {
-    if (data) saveCache(data);
-  }, [data]);
+    if (eventsData) {
+      try { localStorage.setItem(CACHE_KEY_EVENTS, JSON.stringify(eventsData)); } catch {}
+    }
+  }, [eventsData]);
+
+  useEffect(() => {
+    if (newHiresData) {
+      try { localStorage.setItem(CACHE_KEY_NEWHIRES, JSON.stringify(newHiresData)); } catch {}
+    }
+  }, [newHiresData]);
 
   // Refetch on visibility change (TV waking from sleep)
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        fetchEvents()
-          .then(saveCache)
-          .catch(() => {});
+        fetchEvents().catch(() => {});
+        fetchNewHires().catch(() => {});
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   // Daily 3:00 AM reload as memory leak backstop
@@ -71,17 +92,20 @@ export default function DisplayPage() {
     return () => clearTimeout(timeout);
   }, []);
 
-  const cumpleanos = data?.cumpleanos ?? [];
-  const showEmpty = !isPending && cumpleanos.length === 0;
+  const cumpleanos = eventsData?.cumpleanos ?? [];
+  const aniversarios = eventsData?.aniversarios ?? [];
+  const nuevosIngresos = newHiresData?.nuevosIngresos ?? [];
+
+  const isPending = eventsPending && newHiresPending;
+  const hasContent = cumpleanos.length > 0 || aniversarios.length > 0 || nuevosIngresos.length > 0;
+  const showEmpty = !isPending && !hasContent;
 
   return (
     <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
       {/* Header */}
       <header className="flex items-center justify-between px-10 py-4 border-b border-gray-300">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            DIDT
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800">DIDT</h1>
           <p className="text-gray-400 text-sm">
             Dirección de Innovación y Desarrollo Tecnológico
           </p>
@@ -91,8 +115,12 @@ export default function DisplayPage() {
 
       {/* Content */}
       <div className="flex-1 relative overflow-hidden">
-        {cumpleanos.length > 0 ? (
-          <Carousel cumpleanos={cumpleanos} aniversarios={[]} />
+        {hasContent ? (
+          <Carousel
+            cumpleanos={cumpleanos}
+            aniversarios={aniversarios}
+            nuevosIngresos={nuevosIngresos}
+          />
         ) : showEmpty ? (
           <EmptyState />
         ) : null}
@@ -103,9 +131,9 @@ export default function DisplayPage() {
         <span className="text-gray-400 text-xs">
           IMSS · Dirección de Innovación y Desarrollo Tecnológico
         </span>
-        {data && (
+        {eventsData && (
           <span className="text-gray-400 text-xs">
-            Actualizado: {new Date(data.fetchedAt).toLocaleTimeString("es-MX")}
+            Actualizado: {new Date(eventsData.fetchedAt).toLocaleTimeString("es-MX")}
           </span>
         )}
       </footer>
