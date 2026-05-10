@@ -6,6 +6,10 @@
   --font-display: "Inter", system-ui, sans-serif;
 }
 
+html {
+  font-size: 1vw;
+}
+
 /* Hide scrollbar but allow programmatic scroll */
 * {
   scrollbar-width: none;
