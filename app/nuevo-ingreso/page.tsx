@@ -34,10 +34,11 @@ async function fetchNewHires(): Promise<NewHiresResponse> {
 }
 
 export default function NuevoIngresoPage() {
-  const { data } = useQuery<NewHiresResponse>({
+  const { data, isPending } = useQuery<NewHiresResponse>({
     queryKey: ["nuevo-ingreso"],
     queryFn: fetchNewHires,
     refetchInterval: POLL_INTERVAL_MS,
+    initialData: loadCache() ?? undefined,
   });
 
   // Save to cache on successful fetch
@@ -71,7 +72,7 @@ export default function NuevoIngresoPage() {
   }, []);
 
   const nuevosIngresos = data?.nuevosIngresos ?? [];
-  const hasEvents = nuevosIngresos.length > 0;
+  const showEmpty = !isPending && nuevosIngresos.length === 0;
 
   return (
     <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
@@ -88,11 +89,11 @@ export default function NuevoIngresoPage() {
 
       {/* Content */}
       <div className="flex-1 relative overflow-hidden">
-        {hasEvents ? (
+        {nuevosIngresos.length > 0 ? (
           <NewHireCarousel nuevosIngresos={nuevosIngresos} />
-        ) : (
+        ) : showEmpty ? (
           <EmptyState />
-        )}
+        ) : null}
       </div>
 
       {/* Footer */}

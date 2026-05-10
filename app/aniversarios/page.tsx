@@ -32,10 +32,11 @@ async function fetchEvents(): Promise<EventsResponse> {
 }
 
 export default function AniversariosPage() {
-  const { data } = useQuery<EventsResponse>({
+  const { data, isPending } = useQuery<EventsResponse>({
     queryKey: ["events"],
     queryFn: fetchEvents,
     refetchInterval: POLL_INTERVAL_MS,
+    initialData: loadCache() ?? undefined,
   });
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function AniversariosPage() {
   }, []);
 
   const aniversarios = data?.aniversarios ?? [];
-  const hasEvents = aniversarios.length > 0;
+  const showEmpty = !isPending && aniversarios.length === 0;
 
   return (
     <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
@@ -78,11 +79,11 @@ export default function AniversariosPage() {
       </header>
 
       <div className="flex-1 relative overflow-hidden">
-        {hasEvents ? (
+        {aniversarios.length > 0 ? (
           <Carousel cumpleanos={[]} aniversarios={aniversarios} />
-        ) : (
+        ) : showEmpty ? (
           <EmptyState />
-        )}
+        ) : null}
       </div>
 
       <footer className="px-10 py-3 border-t border-gray-300 flex items-center justify-between">

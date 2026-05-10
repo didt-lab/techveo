@@ -34,10 +34,11 @@ async function fetchEvents(): Promise<EventsResponse> {
 }
 
 export default function DisplayPage() {
-  const { data } = useQuery<EventsResponse>({
+  const { data, isPending } = useQuery<EventsResponse>({
     queryKey: ["events"],
     queryFn: fetchEvents,
     refetchInterval: POLL_INTERVAL_MS,
+    initialData: loadCache() ?? undefined,
   });
 
   // Save to cache on successful fetch
@@ -71,7 +72,7 @@ export default function DisplayPage() {
   }, []);
 
   const cumpleanos = data?.cumpleanos ?? [];
-  const hasEvents = cumpleanos.length > 0;
+  const showEmpty = !isPending && cumpleanos.length === 0;
 
   return (
     <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
@@ -90,11 +91,11 @@ export default function DisplayPage() {
 
       {/* Content */}
       <div className="flex-1 relative overflow-hidden">
-        {hasEvents ? (
+        {cumpleanos.length > 0 ? (
           <Carousel cumpleanos={cumpleanos} aniversarios={[]} />
-        ) : (
+        ) : showEmpty ? (
           <EmptyState />
-        )}
+        ) : null}
       </div>
 
       {/* Footer */}
