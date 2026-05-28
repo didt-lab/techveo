@@ -3,12 +3,12 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Carousel } from "@/components/display/Carousel";
-import { Clock } from "@/components/display/Clock";
+import { Ticker } from "@/components/display/Ticker";
 import { EmptyState } from "@/components/display/EmptyState";
-import type { EventsResponse, NewHiresResponse } from "@/lib/domain/types";
+import type { EventsResponse, NewHiresResponse, TickerResponse } from "@/lib/domain/types";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 min — discard stale localStorage cache
+const CACHE_TTL_MS = 10 * 60 * 1000;
 const CACHE_KEY_EVENTS = "techveo:last-events";
 const CACHE_KEY_NEWHIRES = "techveo:last-newhires";
 
@@ -54,6 +54,12 @@ async function fetchNewHires(): Promise<NewHiresResponse> {
   return res.json();
 }
 
+async function fetchTicker(): Promise<TickerResponse> {
+  const res = await fetch("/api/ticker", { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
 export default function DisplayPage() {
   const { data: eventsData, isPending: eventsPending, refetch: refetchEvents } = useQuery<EventsResponse>({
     queryKey: ["events"],
@@ -67,6 +73,13 @@ export default function DisplayPage() {
     queryFn: fetchNewHires,
     refetchInterval: POLL_INTERVAL_MS,
     initialData: loadNewHiresCache() ?? undefined,
+  });
+
+  const { data: tickerData, refetch: refetchTicker } = useQuery<TickerResponse>({
+    queryKey: ["ticker"],
+    queryFn: fetchTicker,
+    refetchInterval: POLL_INTERVAL_MS,
+    initialData: { mensajes: [] },
   });
 
   // Save to cache on successful fetch
@@ -88,11 +101,12 @@ export default function DisplayPage() {
       if (document.visibilityState === "visible") {
         refetchEvents();
         refetchNewHires();
+        refetchTicker();
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [refetchEvents, refetchNewHires]);
+  }, [refetchEvents, refetchNewHires, refetchTicker]);
 
   // Daily 3:00 AM reload as memory leak backstop
   useEffect(() => {
@@ -108,6 +122,7 @@ export default function DisplayPage() {
   const cumpleanos = eventsData?.cumpleanos ?? [];
   const aniversarios = eventsData?.aniversarios ?? [];
   const nuevosIngresos = newHiresData?.nuevosIngresos ?? [];
+  const tickerMensajes = (tickerData?.mensajes ?? []).map((m) => m.texto);
 
   const isPending = eventsPending && newHiresPending;
   const hasContent = cumpleanos.length > 0 || aniversarios.length > 0 || nuevosIngresos.length > 0;
@@ -115,18 +130,7 @@ export default function DisplayPage() {
 
   return (
     <main className="h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200">
-      {/* Header */}
-      <header className="flex items-center justify-between px-10 py-4 border-b border-gray-300">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">DIDT</h1>
-          <p className="text-gray-400 text-sm">
-            Dirección de Innovación y Desarrollo Tecnológico
-          </p>
-        </div>
-        <Clock />
-      </header>
-
-      {/* Content */}
+      {/* Content — ocupa todo el espacio disponible */}
       <div className="flex-1 relative overflow-hidden">
         {hasContent ? (
           <Carousel
@@ -139,17 +143,8 @@ export default function DisplayPage() {
         ) : null}
       </div>
 
-      {/* Footer */}
-      <footer className="px-10 py-3 border-t border-gray-300 flex items-center justify-between">
-        <span className="text-gray-400 text-xs">
-          IMSS · Dirección de Innovación y Desarrollo Tecnológico
-        </span>
-        {eventsData && (
-          <span className="text-gray-400 text-xs">
-            Actualizado: {new Date(eventsData.fetchedAt).toLocaleTimeString("es-MX")}
-          </span>
-        )}
-      </footer>
+      {/* Ticker fijo en la parte inferior */}
+      <Ticker mensajes={tickerMensajes} />
     </main>
   );
 }
