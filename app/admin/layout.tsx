@@ -23,6 +23,9 @@ export default async function AdminLayout({
           <a href="/admin" className="text-white/60 hover:text-white text-sm transition-colors">
             Empleados
           </a>
+          <a href="/admin/ticker" className="text-white/60 hover:text-white text-sm transition-colors">
+            Ticker
+          </a>
           <a href="/admin/importar/cumpleanos" className="text-white/60 hover:text-white text-sm transition-colors">
             Importar Cumpleaños
           </a>
