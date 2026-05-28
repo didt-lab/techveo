@@ -9,7 +9,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Test connection
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          psql \
+            -h db.riodnurshlxbqzvkklvv.supabase.co \
+            -p 5432 \
+            -U postgres \
+            -d postgres \
+            --set=sslmode=require \
+            -c "SELECT 1" \
+            && echo "CONEXION OK"
+
       - name: Run migration
         env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: psql "${SUPABASE_DB_URL}?sslmode=require" -f supabase/migrations/ticker_mensajes.sql -v ON_ERROR_STOP=1
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          psql \
+            -h db.riodnurshlxbqzvkklvv.supabase.co \
+            -p 5432 \
+            -U postgres \
+            -d postgres \
+            --set=sslmode=require \
+            -f supabase/migrations/ticker_mensajes.sql
