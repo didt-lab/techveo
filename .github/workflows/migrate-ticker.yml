@@ -12,4 +12,4 @@ jobs:
       - name: Run migration
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: psql "$SUPABASE_DB_URL" -f supabase/migrations/ticker_mensajes.sql
+        run: psql "${SUPABASE_DB_URL}?sslmode=require" -f supabase/migrations/ticker_mensajes.sql -v ON_ERROR_STOP=1
