@@ -1,0 +1,44 @@
+<h2>¿Cómo gestionar el orden y los archivos?</h2>
+<p class="subtitle">3 enfoques para el admin de multimedia — elige el que mejor se adapta</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Número de orden manual</h3>
+      <p>Cada archivo tiene un campo "Orden" que escribes a mano (1, 2, 3…). La lista se ordena por ese número. Simple pero propenso a errores si hay muchos archivos.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Muy fácil de implementar</li><li>Sin librerías extra</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Incómodo reordenar</li><li>Números pueden quedar duplicados</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Botones ↑ ↓ para reordenar</h3>
+      <p>Lista visual de archivos con botones de subir/bajar. También toggle para activar/desactivar cada elemento sin borrarlo. Recomendado para esta escala.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Intuitivo y claro</li><li>Fácil de implementar</li><li>Toggle activo/inactivo</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Lento si hay muchos items</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Drag & drop</h3>
+      <p>Arrastra los elementos para reordenarlos visualmente. Más moderno pero requiere una librería adicional (dnd-kit) y más tiempo de desarrollo.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>UX más fluida</li><li>Ideal para muchos items</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Más complejo</li><li>Dependencia extra</li><li>Más tiempo de dev</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px">💡 Mi recomendación: <strong>Opción B</strong> — botones ↑↓ dan control completo sin complejidad innecesaria para la escala de este proyecto.</p>
