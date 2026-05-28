@@ -21,13 +21,12 @@ jobs:
           const fs = require('fs');
 
           const client = new Client({
-            host: 'db.riodnurshlxbqzvkklvv.supabase.co',
+            host: 'aws-0-us-east-1.pooler.supabase.com',
             port: 5432,
             database: 'postgres',
-            user: 'postgres',
+            user: 'postgres.riodnurshlxbqzvkklvv',
             password: process.env.PGPASSWORD,
             ssl: { rejectUnauthorized: false },
-            family: 4,
           });
 
           const sql = fs.readFileSync('supabase/migrations/ticker_mensajes.sql', 'utf8');
