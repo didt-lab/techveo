@@ -9,27 +9,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test connection
+      - name: Run migration (IPv4)
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PGSSLMODE: require
         run: |
+          HOST_IP=$(getent ahostsv4 db.riodnurshlxbqzvkklvv.supabase.co | head -1 | awk '{print $1}')
+          echo "Conectando a $HOST_IP"
           psql \
-            -h db.riodnurshlxbqzvkklvv.supabase.co \
+            -h "$HOST_IP" \
             -p 5432 \
             -U postgres \
             -d postgres \
-            --set=sslmode=require \
-            -c "SELECT 1" \
-            && echo "CONEXION OK"
-
-      - name: Run migration
-        env:
-          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-        run: |
-          psql \
-            -h db.riodnurshlxbqzvkklvv.supabase.co \
-            -p 5432 \
-            -U postgres \
-            -d postgres \
-            --set=sslmode=require \
             -f supabase/migrations/ticker_mensajes.sql
