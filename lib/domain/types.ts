@@ -41,3 +41,14 @@ export interface ImportResult {
   updated: number;
   errors: { row: number; message: string }[];
 }
+
+export interface TickerMensaje {
+  id: string;
+  texto: string;
+  orden: number;
+  activo: boolean;
+}
+
+export interface TickerResponse {
+  mensajes: TickerMensaje[];
+}
