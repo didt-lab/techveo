@@ -21,7 +21,8 @@
       "Bash(bash:*)",
       "mcp__code-review-graph__semantic_search_nodes_tool",
       "WebFetch(domain:techveo.netlify.app)",
-      "WebFetch(domain:riodnurshlxbqzvkklvv.supabase.co)"
+      "WebFetch(domain:riodnurshlxbqzvkklvv.supabase.co)",
+      "Bash(ls C:/Users/ivan.mejia/Proyectos/TechVeo/*.png)"
     ]
   },
   "enableAllProjectMcpServers": true,
