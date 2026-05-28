@@ -28,14 +28,14 @@ export function Ticker({ mensajes }: Props) {
     : "";
 
   return (
-    <div className="flex items-stretch h-11 flex-shrink-0" style={{ backgroundColor: "#3bb5a6" }}>
+    <div className="flex items-stretch h-16 flex-shrink-0" style={{ backgroundColor: "#3bb5a6" }}>
       {/* Logo — fondo blanco para preservar transparencia */}
-      <div className="bg-white flex items-center px-4 flex-shrink-0">
+      <div className="bg-white flex items-center px-6 flex-shrink-0">
         <Image
           src="/techveo-logo.png"
           alt="TechVeo"
-          width={90}
-          height={30}
+          width={140}
+          height={46}
           className="object-contain"
           priority
         />
@@ -43,7 +43,7 @@ export function Ticker({ mensajes }: Props) {
 
       {/* Hora */}
       <div
-        className="flex items-center px-4 flex-shrink-0 text-white font-bold text-base tabular-nums"
+        className="flex items-center px-6 flex-shrink-0 text-white font-bold text-2xl tabular-nums"
         style={{
           backgroundColor: "rgba(0,0,0,0.12)",
           borderLeft: "1px solid rgba(255,255,255,0.2)",
