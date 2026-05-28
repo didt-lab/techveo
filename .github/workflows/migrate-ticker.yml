@@ -9,12 +9,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dig
+        run: sudo apt-get install -y dnsutils
+
       - name: Run migration (IPv4)
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           PGSSLMODE: require
         run: |
-          HOST_IP=$(getent ahostsv4 db.riodnurshlxbqzvkklvv.supabase.co | head -1 | awk '{print $1}')
+          HOST_IP=$(dig +short A db.riodnurshlxbqzvkklvv.supabase.co | head -1)
           echo "Conectando a $HOST_IP"
           psql \
             -h "$HOST_IP" \
