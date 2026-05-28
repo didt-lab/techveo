@@ -8,13 +8,24 @@ import { EmptyState } from "@/components/display/EmptyState";
 import type { EventsResponse, NewHiresResponse } from "@/lib/domain/types";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 min — discard stale localStorage cache
 const CACHE_KEY_EVENTS = "techveo:last-events";
 const CACHE_KEY_NEWHIRES = "techveo:last-newhires";
+
+function isCacheFresh(fetchedAt: string): boolean {
+  try {
+    return Date.now() - new Date(fetchedAt).getTime() < CACHE_TTL_MS;
+  } catch {
+    return false;
+  }
+}
 
 function loadEventsCache(): EventsResponse | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY_EVENTS);
-    return raw ? (JSON.parse(raw) as EventsResponse) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as EventsResponse;
+    return isCacheFresh(parsed.fetchedAt) ? parsed : null;
   } catch {
     return null;
   }
@@ -23,7 +34,9 @@ function loadEventsCache(): EventsResponse | null {
 function loadNewHiresCache(): NewHiresResponse | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY_NEWHIRES);
-    return raw ? (JSON.parse(raw) as NewHiresResponse) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as NewHiresResponse;
+    return isCacheFresh(parsed.fetchedAt) ? parsed : null;
   } catch {
     return null;
   }
@@ -42,14 +55,14 @@ async function fetchNewHires(): Promise<NewHiresResponse> {
 }
 
 export default function DisplayPage() {
-  const { data: eventsData, isPending: eventsPending } = useQuery<EventsResponse>({
+  const { data: eventsData, isPending: eventsPending, refetch: refetchEvents } = useQuery<EventsResponse>({
     queryKey: ["events"],
     queryFn: fetchEvents,
     refetchInterval: POLL_INTERVAL_MS,
     initialData: loadEventsCache() ?? undefined,
   });
 
-  const { data: newHiresData, isPending: newHiresPending } = useQuery<NewHiresResponse>({
+  const { data: newHiresData, isPending: newHiresPending, refetch: refetchNewHires } = useQuery<NewHiresResponse>({
     queryKey: ["nuevo-ingreso"],
     queryFn: fetchNewHires,
     refetchInterval: POLL_INTERVAL_MS,
@@ -69,17 +82,17 @@ export default function DisplayPage() {
     }
   }, [newHiresData]);
 
-  // Refetch on visibility change (TV waking from sleep)
+  // Refetch on visibility change (TV waking from sleep / Ablesign tab switch)
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        fetchEvents().catch(() => {});
-        fetchNewHires().catch(() => {});
+        refetchEvents();
+        refetchNewHires();
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
+  }, [refetchEvents, refetchNewHires]);
 
   // Daily 3:00 AM reload as memory leak backstop
   useEffect(() => {
