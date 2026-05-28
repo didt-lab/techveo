@@ -66,12 +66,13 @@ export function Ticker({ mensajes }: Props) {
 
       <style jsx>{`
         .ticker-scroll {
-          animation: ticker-scroll 40s linear infinite;
-          padding-left: 100%;
+          display: inline-block;
+          animation: ticker-scroll 30s linear infinite;
+          will-change: transform;
         }
         @keyframes ticker-scroll {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-200%); }
+          0%   { transform: translateX(100vw); }
+          100% { transform: translateX(-100%); }
         }
       `}</style>
     </div>
