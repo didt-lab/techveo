@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install pg
+        run: npm install pg
+
       - name: Run migration via Node.js (IPv4)
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
