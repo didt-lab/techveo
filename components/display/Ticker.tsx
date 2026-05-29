@@ -43,7 +43,7 @@ export function Ticker({ mensajes }: Props) {
 
       {/* Hora */}
       <div
-        className="flex items-center px-6 flex-shrink-0 text-white font-bold text-2xl tabular-nums"
+        className="flex items-center px-6 flex-shrink-0 text-white font-bold text-[27px] tabular-nums"
         style={{
           backgroundColor: "rgba(0,0,0,0.12)",
           borderLeft: "1px solid rgba(255,255,255,0.2)",
@@ -57,7 +57,7 @@ export function Ticker({ mensajes }: Props) {
       <div className="flex-1 overflow-hidden flex items-center">
         {tickerText && (
           <p
-            className="whitespace-nowrap text-white font-medium text-sm ticker-scroll"
+            className="whitespace-nowrap text-white font-medium text-[17px] ticker-scroll"
           >
             {tickerText}
           </p>
