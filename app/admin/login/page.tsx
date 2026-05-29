@@ -33,40 +33,40 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-8">
+    <main className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center p-8">
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm bg-gray-900 rounded-2xl border border-white/10 p-8"
+        className="w-full max-w-sm bg-white rounded-2xl border border-gray-200 p-8 shadow-sm"
       >
         <h1 className="text-2xl font-bold mb-2">Administración</h1>
-        <p className="text-white/50 text-sm mb-8">TechVeo — DIDT</p>
+        <p className="text-gray-500 text-sm mb-8">TechVeo — DIDT</p>
 
-        <label className="block text-sm text-white/70 mb-1">Correo</label>
+        <label className="block text-sm text-gray-600 mb-1">Correo</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full mb-4 px-4 py-3 bg-gray-800 border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/30"
+          className="w-full mb-4 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
         />
 
-        <label className="block text-sm text-white/70 mb-1">Contraseña</label>
+        <label className="block text-sm text-gray-600 mb-1">Contraseña</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full mb-6 px-4 py-3 bg-gray-800 border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/30"
+          className="w-full mb-6 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
         />
 
         {error && (
-          <p className="text-red-400 text-sm mb-4">{error}</p>
+          <p className="text-red-500 text-sm mb-4">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl font-semibold transition-colors"
+          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl font-semibold text-white transition-colors"
         >
           {loading ? "Ingresando…" : "Ingresar"}
         </button>

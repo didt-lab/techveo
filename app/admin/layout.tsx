@@ -16,31 +16,31 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <nav className="flex items-center justify-between px-8 py-4 border-b border-white/10">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <nav className="flex items-center justify-between px-8 py-4 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-6">
-          <span className="text-lg font-bold">TechVeo Admin</span>
-          <a href="/admin" className="text-white/60 hover:text-white text-sm transition-colors">
+          <span className="text-lg font-bold text-gray-900">TechVeo Admin</span>
+          <a href="/admin" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
             Empleados
           </a>
-          <a href="/admin/ticker" className="text-white/60 hover:text-white text-sm transition-colors">
+          <a href="/admin/ticker" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
             Ticker
           </a>
-          <a href="/admin/importar/cumpleanos" className="text-white/60 hover:text-white text-sm transition-colors">
+          <a href="/admin/importar/cumpleanos" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
             Importar Cumpleaños
           </a>
-          <a href="/admin/importar/aniversarios" className="text-white/60 hover:text-white text-sm transition-colors">
+          <a href="/admin/importar/aniversarios" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
             Importar Aniversarios
           </a>
-          <a href="/admin/importar/exclusiones" className="text-white/60 hover:text-white text-sm transition-colors">
+          <a href="/admin/importar/exclusiones" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
             Importar Exclusiones
           </a>
-          <a href="/admin/importar/empleados" className="text-white/60 hover:text-white text-sm transition-colors">
+          <a href="/admin/importar/empleados" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
             Importar Empleados
           </a>
         </div>
         <div className="flex items-center gap-4">
-          <a href="/" target="_blank" className="text-white/40 hover:text-white/70 text-sm transition-colors">
+          <a href="/" target="_blank" className="text-gray-400 hover:text-gray-600 text-sm transition-colors">
             Ver pantalla TV ↗
           </a>
         </div>

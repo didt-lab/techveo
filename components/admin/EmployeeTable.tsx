@@ -21,7 +21,7 @@ function Toggle({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-        checked ? "bg-emerald-600" : "bg-gray-600"
+        checked ? "bg-emerald-600" : "bg-gray-300"
       } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <span
@@ -179,7 +179,6 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     .sort((a, b) => {
       let cmp: number;
       if (sortField === "fecha_nacimiento" || sortField === "fecha_ingreso") {
-        // Sort chronologically by full date (YYYY-MM-DD)
         cmp = a[sortField].localeCompare(b[sortField]);
       } else {
         cmp = a[sortField].localeCompare(b[sortField]);
@@ -203,12 +202,12 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
           placeholder="Buscar por nombre o matrícula…"
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          className="px-4 py-2 bg-gray-800 border border-white/10 rounded-lg text-white w-72 focus:outline-none focus:border-white/30"
+          className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 w-72 focus:outline-none focus:border-gray-400"
         />
         <select
           value={mesCumple}
           onChange={(e) => handleMesCumple(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
+          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
         >
           {MESES.map((m) => (
             <option key={`cumple-${m.value}`} value={m.value}>
@@ -219,7 +218,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         <select
           value={mesIngreso}
           onChange={(e) => handleMesIngreso(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
+          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
         >
           {MESES.map((m) => (
             <option key={`ingreso-${m.value}`} value={m.value}>
@@ -230,7 +229,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         <select
           value={minAnios}
           onChange={(e) => handleMinAnios(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-white/30"
+          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
         >
           {ANTIGUEDAD.map((a) => (
             <option key={`ant-${a.value}`} value={a.value}>
@@ -241,56 +240,56 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         {(mesCumple || mesIngreso || minAnios) && (
           <button
             onClick={handleClearFilters}
-            className="px-3 py-2 text-white/50 hover:text-white text-sm transition-colors"
+            className="px-3 py-2 text-gray-500 hover:text-gray-900 text-sm transition-colors"
           >
             Limpiar filtros
           </button>
         )}
         <a
           href="/admin/empleados/nuevo"
-          className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-semibold transition-colors"
+          className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors"
         >
           + Nuevo empleado
         </a>
       </div>
 
-      <div className="bg-gray-900 rounded-xl border border-white/10 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-white/10 text-white/50 text-sm uppercase tracking-wider">
-              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("matricula")}>
+            <tr className="border-b border-gray-200 text-gray-500 text-sm uppercase tracking-wider">
+              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("matricula")}>
                 <span className="flex items-center gap-1">
                   Matrícula
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "matricula" ? "text-white" : "text-white/20"}`}>
-                    <span className={sortField === "matricula" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
-                    <span className={sortField === "matricula" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "matricula" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "matricula" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
+                    <span className={sortField === "matricula" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("nombre")}>
+              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("nombre")}>
                 <span className="flex items-center gap-1">
                   Nombre
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "nombre" ? "text-white" : "text-white/20"}`}>
-                    <span className={sortField === "nombre" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
-                    <span className={sortField === "nombre" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "nombre" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "nombre" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
+                    <span className={sortField === "nombre" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("fecha_nacimiento")}>
+              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("fecha_nacimiento")}>
                 <span className="flex items-center gap-1">
                   Cumpleaños
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_nacimiento" ? "text-white" : "text-white/20"}`}>
-                    <span className={sortField === "fecha_nacimiento" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
-                    <span className={sortField === "fecha_nacimiento" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_nacimiento" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "fecha_nacimiento" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
+                    <span className={sortField === "fecha_nacimiento" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3 cursor-pointer hover:text-white/80 select-none" onClick={() => handleSort("fecha_ingreso")}>
+              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("fecha_ingreso")}>
                 <span className="flex items-center gap-1">
                   Fecha Ingreso
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_ingreso" ? "text-white" : "text-white/20"}`}>
-                    <span className={sortField === "fecha_ingreso" && sortDir === "asc" ? "text-emerald-400" : ""}>▲</span>
-                    <span className={sortField === "fecha_ingreso" && sortDir === "desc" ? "text-emerald-400" : ""}>▼</span>
+                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_ingreso" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "fecha_ingreso" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
+                    <span className={sortField === "fecha_ingreso" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
                   </span>
                 </span>
               </th>
@@ -304,12 +303,12 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
             {filtered.map((emp) => (
               <tr
                 key={emp.id}
-                className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
               >
                 <td className="px-6 py-4 font-mono text-sm">{emp.matricula}</td>
                 <td className="px-6 py-4">{emp.nombre}</td>
-                <td className="px-6 py-4 text-white/70">{emp.fecha_nacimiento}</td>
-                <td className="px-6 py-4 text-white/70">{emp.fecha_ingreso}</td>
+                <td className="px-6 py-4 text-gray-500">{emp.fecha_nacimiento}</td>
+                <td className="px-6 py-4 text-gray-500">{emp.fecha_ingreso}</td>
                 <td className="px-6 py-4">
                   {emp.foto_url ? (
                     <img
@@ -318,7 +317,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <span className="text-white/30 text-sm">Sin foto</span>
+                    <span className="text-gray-400 text-sm">Sin foto</span>
                   )}
                 </td>
                 <td className="px-6 py-4 text-center">
@@ -338,7 +337,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
                 <td className="px-6 py-4">
                   <a
                     href={`/admin/empleados/${emp.id}/editar`}
-                    className="text-emerald-400 hover:text-emerald-300 text-sm transition-colors"
+                    className="text-emerald-600 hover:text-emerald-700 text-sm transition-colors"
                   >
                     Editar
                   </a>
@@ -347,7 +346,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-white/30">
+                <td colSpan={8} className="px-6 py-8 text-center text-gray-400">
                   {search ? "Sin resultados" : "No hay empleados registrados"}
                 </td>
               </tr>
@@ -356,7 +355,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         </table>
       </div>
 
-      <p className="text-white/30 text-sm mt-4">
+      <p className="text-gray-400 text-sm mt-4">
         {filtered.length} de {empleados.length} empleados
       </p>
     </div>

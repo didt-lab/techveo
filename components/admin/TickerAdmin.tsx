@@ -105,47 +105,47 @@ export function TickerAdmin({ initialMensajes }: Props) {
       {/* Lista de mensajes */}
       <div className="flex flex-col gap-3 mb-6">
         {mensajes.length === 0 && (
-          <p className="text-white/40 text-sm">No hay mensajes. Agrega uno abajo.</p>
+          <p className="text-gray-400 text-sm">No hay mensajes. Agrega uno abajo.</p>
         )}
         {mensajes.map((msg, i) => (
           <div
             key={msg.id}
-            className="flex items-center gap-3 bg-gray-800 border border-white/10 rounded-xl px-4 py-3"
+            className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3"
           >
             {/* Botones de orden */}
             <div className="flex flex-col gap-1">
               <button
                 onClick={() => moverArriba(i)}
                 disabled={i === 0}
-                className="text-white/30 hover:text-white disabled:opacity-20 leading-none text-xs"
+                className="text-gray-400 hover:text-gray-900 disabled:opacity-20 leading-none text-xs"
               >
                 ▲
               </button>
               <button
                 onClick={() => moverAbajo(i)}
                 disabled={i === mensajes.length - 1}
-                className="text-white/30 hover:text-white disabled:opacity-20 leading-none text-xs"
+                className="text-gray-400 hover:text-gray-900 disabled:opacity-20 leading-none text-xs"
               >
                 ▼
               </button>
             </div>
 
             {/* Texto */}
-            <span className="flex-1 text-sm text-white/80">{msg.texto}</span>
+            <span className="flex-1 text-sm text-gray-700">{msg.texto}</span>
 
             {/* Toggle activo */}
             <button
               onClick={() => handleToggle(msg.id)}
               title={msg.activo ? "Desactivar" : "Activar"}
               className={`w-3 h-3 rounded-full flex-shrink-0 transition-colors ${
-                msg.activo ? "bg-emerald-500" : "bg-gray-600"
+                msg.activo ? "bg-emerald-500" : "bg-gray-300"
               }`}
             />
 
             {/* Eliminar */}
             <button
               onClick={() => handleEliminar(msg.id)}
-              className="text-red-400/60 hover:text-red-400 text-xs font-bold ml-1"
+              className="text-red-400 hover:text-red-600 text-xs font-bold ml-1"
             >
               ✕
             </button>
@@ -161,12 +161,12 @@ export function TickerAdmin({ initialMensajes }: Props) {
           onChange={(e) => setNuevoTexto(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAgregar()}
           placeholder="Escribe un nuevo mensaje…"
-          className="flex-1 px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-white/30"
+          className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm focus:outline-none focus:border-gray-400"
         />
         <button
           onClick={handleAgregar}
           disabled={saving || !nuevoTexto.trim()}
-          className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl text-sm font-semibold transition-colors"
+          className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-colors"
         >
           + Agregar
         </button>
@@ -182,12 +182,12 @@ export function TickerAdmin({ initialMensajes }: Props) {
         {saving ? "Guardando…" : "Guardar orden"}
       </button>
 
-      {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-      {success && <p className="text-emerald-400 text-sm mb-4">{success}</p>}
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {success && <p className="text-emerald-600 text-sm mb-4">{success}</p>}
 
       {/* Vista previa */}
       <div>
-        <p className="text-white/40 text-xs uppercase tracking-widest mb-2">Vista previa</p>
+        <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Vista previa</p>
         <div
           className="flex items-stretch rounded-xl overflow-hidden"
           style={{ height: "44px", backgroundColor: "#3bb5a6" }}
