@@ -52,16 +52,37 @@ export function EmployeeForm({ empleado }: Props) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  async function compressImage(file: File, maxPx = 600, quality = 0.75): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("toBlob failed")), "image/jpeg", quality);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
   async function uploadPhoto(): Promise<string | null> {
     const file = fileRef.current?.files?.[0];
     if (!file) return fotoUrl || null;
 
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const path = `${matricula}.${ext}`;
+    const compressed = await compressImage(file);
+    const path = `${matricula}.jpg`;
 
     const { error: uploadError } = await supabase.storage
       .from("fotos-empleados")
-      .upload(path, file, { upsert: true });
+      .upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
 
     if (uploadError) {
       setError(`Error al subir foto: ${uploadError.message}`);
