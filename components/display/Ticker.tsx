@@ -1,15 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 interface Props {
-  mensajes: string[]; // textos de mensajes activos, ya ordenados
+  mensajes: string[];
 }
 
 export function Ticker({ mensajes }: Props) {
   const [time, setTime] = useState<string>("");
+  const textRef = useRef<HTMLSpanElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const posRef = useRef<number>(0);
+  const rafRef = useRef<number>(0);
 
+  // Clock
   useEffect(() => {
     function tick() {
       const now = new Date();
@@ -23,13 +28,42 @@ export function Ticker({ mensajes }: Props) {
     return () => clearInterval(id);
   }, []);
 
+  // JS scroll — immune to proxies, CSP and prefers-reduced-motion
+  useEffect(() => {
+    const el = textRef.current;
+    const container = containerRef.current;
+    if (!el || !container) return;
+
+    const containerW = container.offsetWidth;
+    const textW = el.offsetWidth;
+
+    // Start just off the right edge
+    posRef.current = containerW;
+    el.style.transform = `translateX(${posRef.current}px)`;
+
+    const speed = 1.5; // px per frame (~90px/s at 60fps)
+
+    function step() {
+      posRef.current -= speed;
+      // Reset when fully off the left edge
+      if (posRef.current < -(textW)) {
+        posRef.current = containerW;
+      }
+      if (el) el.style.transform = `translateX(${posRef.current}px)`;
+      rafRef.current = requestAnimationFrame(step);
+    }
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [mensajes]);
+
   const tickerText = mensajes.length > 0
     ? mensajes.join("   ●   ")
     : "";
 
   return (
     <div className="flex items-stretch h-16 flex-shrink-0" style={{ backgroundColor: "#3bb5a6" }}>
-      {/* Logo — fondo blanco para preservar transparencia */}
+      {/* Logo */}
       <div className="bg-white flex items-center px-6 flex-shrink-0">
         <Image
           src="/techveo-logo.png"
@@ -55,17 +89,17 @@ export function Ticker({ mensajes }: Props) {
       </div>
 
       {/* Texto desfilante */}
-      <div className="flex-1 overflow-hidden flex items-center">
+      <div ref={containerRef} className="flex-1 overflow-hidden flex items-center">
         {tickerText && (
-          <p
-            className="whitespace-nowrap text-white font-medium ticker-scroll"
-            style={{ fontSize: "40px" }}
+          <span
+            ref={textRef}
+            className="whitespace-nowrap text-white font-medium"
+            style={{ fontSize: "40px", display: "inline-block", willChange: "transform" }}
           >
             {tickerText}
-          </p>
+          </span>
         )}
       </div>
-
     </div>
   );
 }

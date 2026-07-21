@@ -67,7 +67,7 @@ Three-layer separation: Display Layer → API Layer → Supabase.
 Three independent capsules, computed at query time from raw `YYYY-MM-DD` strings:
 
 - **Cumpleaños:** `getBirthdaysInWindow` — employees whose birthday MM-DD falls within the next 15 days. Filtered by `mostrar_cumpleanos = true`.
-- **Aniversarios:** `getAnniversariesInMonth` — employees whose hire month matches the current month AND whose years of service hit a milestone (5, 10, 15, 20, 25). Filtered by `mostrar_aniversario = true`.
+- **Aniversarios:** `getAnniversariesInMonth` — employees whose hire month matches the current month AND whose years of service hit a milestone (5, 10, 15, 20, 25, 35). Filtered by `mostrar_aniversario = true`.
 - **Nuevos Ingresos:** `getNewHiresInMonth` — employees whose `fecha_ingreso` is in the current month AND year (exact year match, not just month). No flag filter.
 
 Carousel: 2 employees per slide, 8 seconds per slide.
