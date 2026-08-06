@@ -28,7 +28,7 @@ export function TechNdenciaCarousel({ noticias }: { noticias: TechNoticia[] }) {
 
   if (noticias.length === 0) return null;
 
-  const noticia = noticias[currentIndex];
+  const noticia = noticias[currentIndex] ?? noticias[noticias.length - 1];
 
   return (
     <div className="relative w-full h-full overflow-hidden">
