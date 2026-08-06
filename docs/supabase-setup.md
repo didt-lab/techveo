@@ -58,14 +58,37 @@ CREATE POLICY "Public read storage" ON storage.objects
   FOR SELECT USING (bucket_id = 'fotos-empleados');
 ```
 
-## 4. Create admin user
+## 4. Create the `tech_noticias` table (TechNdencias module)
+
+```sql
+CREATE TABLE tech_noticias (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  titulo      TEXT NOT NULL,
+  parrafo     TEXT NOT NULL,
+  media_url   TEXT NOT NULL,
+  media_type  TEXT NOT NULL CHECK (media_type IN ('imagen', 'video')),
+  orden       INTEGER NOT NULL DEFAULT 0,
+  activo      BOOLEAN NOT NULL DEFAULT true,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE tech_noticias ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read" ON tech_noticias FOR SELECT USING (true);
+```
+
+Create a Storage bucket called `techndencias-media`:
+1. Go to Storage in the Supabase dashboard.
+2. Create a new bucket named `techndencias-media`, set it to **public**.
+3. Set file size limit to 20MB and allowed mime types to `image/jpeg, image/png, image/webp, video/mp4, video/webm`.
+
+## 5. Create admin user
 
 1. Go to Authentication > Users in Supabase dashboard
 2. Click "Add user" > "Create new user"
 3. Enter the admin email and password
 4. This is the only user needed for the system
 
-## 5. Environment variables
+## 6. Environment variables
 
 Copy `.env.example` to `.env.local` and fill in:
 
