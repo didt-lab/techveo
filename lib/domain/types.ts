@@ -52,3 +52,19 @@ export interface TickerMensaje {
 export interface TickerResponse {
   mensajes: TickerMensaje[];
 }
+
+export interface TechNoticia {
+  id: string;
+  titulo: string;
+  parrafo: string;
+  media_url: string;
+  media_type: "imagen" | "video";
+  orden: number;
+  activo: boolean;
+  created_at: string;
+}
+
+export interface TechNoticiasResponse {
+  noticias: TechNoticia[];
+  fetchedAt: string;
+}
