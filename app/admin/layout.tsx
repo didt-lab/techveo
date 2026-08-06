@@ -36,6 +36,7 @@ export default async function AdminLayout({
           <div className="flex items-stretch h-full">
             <NavLink href="/admin">Empleados</NavLink>
             <NavLink href="/admin/ticker">Ticker</NavLink>
+            <NavLink href="/admin/techndencias">TechNdencias</NavLink>
           </div>
 
           {/* Separador + grupo Importar */}
