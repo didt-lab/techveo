@@ -49,7 +49,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
   const [success, setSuccess] = useState("");
 
   async function uploadMedia(): Promise<
-    { url: string; type: "imagen" | "video"; id: string } | null
+    { url: string; type: "imagen" | "video"; id: string; path: string } | null
   > {
     const file = fileRef.current?.files?.[0];
     if (!file) {
@@ -85,7 +85,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
         data: { publicUrl },
       } = supabase.storage.from("techndencias-media").getPublicUrl(path);
 
-      return { url: publicUrl, type: "video", id };
+      return { url: publicUrl, type: "video", id, path };
     }
 
     const compressed = await compressImage(file);
@@ -104,7 +104,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
       data: { publicUrl },
     } = supabase.storage.from("techndencias-media").getPublicUrl(path);
 
-    return { url: publicUrl, type: "imagen", id };
+    return { url: publicUrl, type: "imagen", id, path };
   }
 
   async function handleAgregar(e: React.FormEvent) {
@@ -118,39 +118,49 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
     }
 
     setUploading(true);
-    const media = await uploadMedia();
-    if (!media) {
+    try {
+      const media = await uploadMedia();
+      if (!media) {
+        setUploading(false);
+        return;
+      }
+
+      const res = await fetch("/api/techndencias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: media.id,
+          titulo: titulo.trim(),
+          parrafo: parrafo.trim(),
+          media_url: media.url,
+          media_type: media.type,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? "Error al guardar");
+        await supabase.storage
+          .from("techndencias-media")
+          .remove([media.path])
+          .catch(() => {});
+        setUploading(false);
+        return;
+      }
+
+      const nueva = (await res.json()) as TechNoticia;
+      setNoticias((prev) => [...prev, nueva]);
+      setTitulo("");
+      setParrafo("");
+      if (fileRef.current) fileRef.current.value = "";
+      setUploading(false);
+      setSuccess("Noticia agregada");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch {
+      setError("Error inesperado al subir el archivo");
       setUploading(false);
       return;
     }
-
-    const res = await fetch("/api/techndencias", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: media.id,
-        titulo: titulo.trim(),
-        parrafo: parrafo.trim(),
-        media_url: media.url,
-        media_type: media.type,
-      }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error ?? "Error al guardar");
-      setUploading(false);
-      return;
-    }
-
-    const nueva = (await res.json()) as TechNoticia;
-    setNoticias((prev) => [...prev, nueva]);
-    setTitulo("");
-    setParrafo("");
-    if (fileRef.current) fileRef.current.value = "";
-    setUploading(false);
-    setSuccess("Noticia agregada");
-    setTimeout(() => setSuccess(""), 3000);
   }
 
   async function handleToggle(id: string) {
@@ -248,6 +258,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
               <video
                 src={noticia.media_url}
                 muted
+                preload="metadata"
                 className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-gray-200"
               />
             ) : (
