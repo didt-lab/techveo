@@ -80,6 +80,22 @@ Create a Storage bucket called `techndencias-media`:
 1. Go to Storage in the Supabase dashboard.
 2. Create a new bucket named `techndencias-media`, set it to **public**.
 3. Set file size limit to 20MB and allowed mime types to `image/jpeg, image/png, image/webp, video/mp4, video/webm`.
+4. Add storage policies (the "public" flag only controls unauthenticated reads — uploads from the admin UI go through the anon key + user session, so they need explicit RLS policies on `storage.objects`, same as `fotos-empleados`):
+
+```sql
+CREATE POLICY "Auth upload techndencias" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'techndencias-media' AND auth.role() = 'authenticated'
+  );
+
+CREATE POLICY "Auth overwrite techndencias" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'techndencias-media' AND auth.role() = 'authenticated'
+  );
+
+CREATE POLICY "Public read techndencias" ON storage.objects
+  FOR SELECT USING (bucket_id = 'techndencias-media');
+```
 
 ## 5. Create admin user
 
