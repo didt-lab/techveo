@@ -23,7 +23,14 @@
       "WebFetch(domain:techveo.netlify.app)",
       "WebFetch(domain:riodnurshlxbqzvkklvv.supabase.co)",
       "Bash(ls C:/Users/ivan.mejia/Proyectos/TechVeo/*.png)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "Bash(Start-Sleep -Seconds 6)",
+      "Bash(Write-Host \"Dev server should be ready now\")",
+      "Bash(pkill -f \"node.*next\")",
+      "Bash(taskkill /PID 70800 /F)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(npm run *)",
+      "mcp__code-review-graph__query_graph_tool"
     ]
   },
   "enableAllProjectMcpServers": true,
