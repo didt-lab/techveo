@@ -18,7 +18,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){
-              var tvRoutes = ["/", "/aniversarios", "/nuevo-ingreso", "/techndencias"];
+              var tvRoutes = ["/", "/aniversarios", "/nuevo-ingreso", "/techndencias-v2"];
               if (tvRoutes.indexOf(location.pathname) !== -1) {
                 document.documentElement.style.fontSize = "1.2vw";
               }

@@ -32,6 +32,6 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[headers]]
-  for = "/techndencias"
+  for = "/techndencias-v2"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
