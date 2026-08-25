@@ -13,3 +13,25 @@
   [headers.values]
     X-Frame-Options = "ALLOWALL"
     Content-Security-Policy = "frame-ancestors *"
+
+# Pantallas TV embebidas en Ablesign: nunca servir HTML cacheado — el visor
+# del kiosco debe pedir el build/datos frescos en cada carga.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/aniversarios"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/nuevo-ingreso"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/techndencias"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
