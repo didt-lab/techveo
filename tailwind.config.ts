@@ -13,12 +13,13 @@ const config: Config = {
       },
       colors: {
         brand: {
-          50:  "#f0fdf4",
-          100: "#dcfce7",
-          500: "#22c55e",
-          600: "#16a34a",
-          700: "#15803d",
-          900: "#14532d",
+          primary:        "#006455",
+          primaryHover:   "#004f43",
+          secondary:      "#0aa16e",
+          secondaryHover: "#089158",
+          danger:         "#e9080c",
+          dangerHover:    "#c81010",
+          gob:            "#611232",
         },
       },
       animation: {

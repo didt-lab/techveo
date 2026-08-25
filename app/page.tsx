@@ -3,9 +3,8 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Carousel } from "@/components/display/Carousel";
-import { Ticker } from "@/components/display/Ticker";
 import { EmptyState } from "@/components/display/EmptyState";
-import type { EventsResponse, NewHiresResponse, TickerResponse } from "@/lib/domain/types";
+import type { EventsResponse, NewHiresResponse } from "@/lib/domain/types";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
 const CACHE_TTL_MS = 10 * 60 * 1000;
@@ -54,12 +53,6 @@ async function fetchNewHires(): Promise<NewHiresResponse> {
   return res.json();
 }
 
-async function fetchTicker(): Promise<TickerResponse> {
-  const res = await fetch("/api/ticker", { cache: "no-store" });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
 export default function DisplayPage() {
   const { data: eventsData, isPending: eventsPending, refetch: refetchEvents } = useQuery<EventsResponse>({
     queryKey: ["events"],
@@ -73,13 +66,6 @@ export default function DisplayPage() {
     queryFn: fetchNewHires,
     refetchInterval: POLL_INTERVAL_MS,
     initialData: loadNewHiresCache() ?? undefined,
-  });
-
-  const { data: tickerData, refetch: refetchTicker } = useQuery<TickerResponse>({
-    queryKey: ["ticker"],
-    queryFn: fetchTicker,
-    refetchInterval: POLL_INTERVAL_MS,
-    initialData: { mensajes: [] },
   });
 
   // Save to cache on successful fetch
@@ -101,12 +87,11 @@ export default function DisplayPage() {
       if (document.visibilityState === "visible") {
         refetchEvents();
         refetchNewHires();
-        refetchTicker();
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [refetchEvents, refetchNewHires, refetchTicker]);
+  }, [refetchEvents, refetchNewHires]);
 
   // Daily 3:00 AM reload as memory leak backstop
   useEffect(() => {
@@ -122,7 +107,6 @@ export default function DisplayPage() {
   const cumpleanos = eventsData?.cumpleanos ?? [];
   const aniversarios = eventsData?.aniversarios ?? [];
   const nuevosIngresos = newHiresData?.nuevosIngresos ?? [];
-  const tickerMensajes = (tickerData?.mensajes ?? []).map((m) => m.texto);
 
   const isPending = eventsPending && newHiresPending;
   const hasContent = cumpleanos.length > 0 || aniversarios.length > 0 || nuevosIngresos.length > 0;
@@ -142,9 +126,6 @@ export default function DisplayPage() {
           <EmptyState />
         ) : null}
       </div>
-
-      {/* Ticker fijo en la parte inferior */}
-      <Ticker mensajes={tickerMensajes} />
     </main>
   );
 }

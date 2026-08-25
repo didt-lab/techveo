@@ -6,9 +6,9 @@
   --font-display: "Inter", system-ui, sans-serif;
 }
 
-html {
-  font-size: 1.2vw;
-}
+/* Base font-size stays at browser default (16px). TV display routes opt into
+   viewport-relative scaling via an inline script in RootLayout (see app/layout.tsx)
+   so it doesn't leak into /admin. */
 
 /* Hide scrollbar but allow programmatic scroll */
 * {

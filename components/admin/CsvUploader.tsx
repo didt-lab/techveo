@@ -67,20 +67,20 @@ export function CsvUploader({
         ref={fileRef}
         type="file"
         accept=".csv"
-        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer mb-4"
+        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primaryHover cursor-pointer mb-4"
       />
 
       <button
         onClick={handleUpload}
         disabled={status === "loading"}
-        className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl font-semibold text-white transition-colors"
+        className="w-full py-3 bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-50 rounded-xl font-semibold text-white transition-colors"
       >
         {status === "loading" ? "Importando…" : "Importar CSV"}
       </button>
 
       {status === "ok" && result && (
         <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-          <p className="text-emerald-700 font-semibold">Importación completada</p>
+          <p className="text-brand-primary font-semibold">Importación completada</p>
           <p className="text-gray-600 text-sm mt-1">
             Creados: {result.created} · Actualizados: {result.updated}
           </p>

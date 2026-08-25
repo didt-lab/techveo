@@ -30,7 +30,21 @@
       "Bash(taskkill /PID 70800 /F)",
       "PowerShell(Stop-Process *)",
       "PowerShell(npm run *)",
-      "mcp__code-review-graph__query_graph_tool"
+      "mcp__code-review-graph__query_graph_tool",
+      "Bash(seq 1 20)",
+      "Bash(break)",
+      "Bash(sleep 1)",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter 'ProcessId=29068' | Select-Object ProcessId, CommandLine\" 2>&1)",
+      "Bash(powershell -NoProfile -Command \"Get-Content -Tail 60 'C:\\\\Users\\\\ivan.mejia\\\\Proyectos\\\\TechVeo\\\\.next\\\\dev\\\\logs\\\\next-development.log' -ErrorAction SilentlyContinue\" 2>&1)",
+      "Bash(cp \"C:\\\\Users\\\\ivan.mejia\\\\Proyectos\\\\starter-kit-dumbo\\\\Logos\\\\logo_gobierno_mexico.png\" \"C:\\\\Users\\\\ivan.mejia\\\\Proyectos\\\\TechVeo\\\\public\\\\gobierno-mexico-logo.png\")",
+      "Bash(identify \"C:\\\\Users\\\\ivan.mejia\\\\Proyectos\\\\TechVeo\\\\public\\\\gobierno-mexico-logo.png\")",
+      "Bash(rm -f components/display/Ticker.tsx components/admin/TickerAdmin.tsx app/admin/ticker/page.tsx app/api/ticker/route.ts \"app/api/ticker/[id]/route.ts\")",
+      "Bash(rmdir app/admin/ticker \"app/api/ticker/[id]\" app/api/ticker)",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*next*dev*' } | Select-Object ProcessId, CommandLine\" 2>&1)",
+      "Bash(cp \"assets\\\\img\\\\fondo_imagen_login.png\" \"public\\\\login-bg-wave.png\")",
+      "Bash(mv \"public\\\\login-bg.png\" \"public\\\\login-bg-screens.png\")",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\('C:\\\\Users\\\\ivan.mejia\\\\Proyectos\\\\TechVeo\\\\public\\\\login-bg-screens.jpg'\\); \"$\\($img.Width\\) x $\\($img.Height\\)\"; $img.Dispose\\(\\))",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\('C:\\\\Users\\\\ivan.mejia\\\\Proyectos\\\\TechVeo\\\\assets\\\\img\\\\digital_signage.png'\\); \"$\\($img.Width\\) x $\\($img.Height\\)\"; $img.Dispose\\(\\))"
     ]
   },
   "enableAllProjectMcpServers": true,

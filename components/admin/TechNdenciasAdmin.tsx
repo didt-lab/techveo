@@ -275,7 +275,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
               onClick={() => handleToggle(noticia.id)}
               title={noticia.activo ? "Desactivar" : "Activar"}
               className={`w-3 h-3 rounded-full flex-shrink-0 transition-colors ${
-                noticia.activo ? "bg-emerald-500" : "bg-gray-300"
+                noticia.activo ? "bg-brand-primary" : "bg-gray-300"
               }`}
             />
 
@@ -293,7 +293,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
         <button
           onClick={handleGuardarOrden}
           disabled={saving}
-          className="w-full py-3 rounded-xl font-semibold transition-colors mb-8 text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
+          className="w-full py-3 rounded-xl font-semibold transition-colors mb-8 text-white bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-50"
         >
           {saving ? "Guardando…" : "Guardar orden"}
         </button>
@@ -314,7 +314,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
             value={titulo}
             maxLength={TITULO_MAX}
             onChange={(e) => setTitulo(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
+            className="w-full px-4 py-3 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-brand-secondary"
           />
         </div>
 
@@ -327,7 +327,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
             maxLength={PARRAFO_MAX}
             onChange={(e) => setParrafo(e.target.value)}
             rows={3}
-            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400 resize-none"
+            className="w-full px-4 py-3 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-brand-secondary resize-none"
           />
         </div>
 
@@ -337,14 +337,14 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
             ref={fileRef}
             type="file"
             accept="image/*,video/mp4,video/webm"
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-200 file:text-gray-700 hover:file:bg-gray-300 cursor-pointer"
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primaryHover cursor-pointer"
           />
           <p className="text-gray-400 text-xs mt-1">Video máx. 20MB, formato MP4 o WebM.</p>
         </div>
 
         {success && (
           <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-            <p className="text-emerald-700 text-sm font-semibold">{success}</p>
+            <p className="text-brand-primary text-sm font-semibold">{success}</p>
           </div>
         )}
         {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -352,7 +352,7 @@ export function TechNdenciasAdmin({ initialNoticias }: Props) {
         <button
           type="submit"
           disabled={uploading}
-          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-semibold transition-colors"
+          className="px-6 py-3 bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-50 text-white rounded-xl font-semibold transition-colors"
         >
           {uploading ? "Subiendo…" : "Agregar noticia"}
         </button>

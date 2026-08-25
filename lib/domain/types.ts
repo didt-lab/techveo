@@ -42,17 +42,6 @@ export interface ImportResult {
   errors: { row: number; message: string }[];
 }
 
-export interface TickerMensaje {
-  id: string;
-  texto: string;
-  orden: number;
-  activo: boolean;
-}
-
-export interface TickerResponse {
-  mensajes: TickerMensaje[];
-}
-
 export interface TechNoticia {
   id: string;
   titulo: string;

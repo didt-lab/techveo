@@ -202,7 +202,7 @@ export function EmployeeForm({ empleado }: Props) {
           value={matricula}
           onChange={(e) => setMatricula(e.target.value)}
           required
-          className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
+          className="w-full px-4 py-3 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-brand-secondary"
         />
       </div>
 
@@ -213,7 +213,7 @@ export function EmployeeForm({ empleado }: Props) {
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           required
-          className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
+          className="w-full px-4 py-3 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-brand-secondary"
         />
       </div>
 
@@ -224,7 +224,7 @@ export function EmployeeForm({ empleado }: Props) {
           value={fechaNacimiento}
           onChange={(e) => setFechaNacimiento(e.target.value)}
           required
-          className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
+          className="w-full px-4 py-3 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-brand-secondary"
         />
       </div>
 
@@ -235,7 +235,7 @@ export function EmployeeForm({ empleado }: Props) {
           value={fechaIngreso}
           onChange={(e) => setFechaIngreso(e.target.value)}
           required
-          className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-400"
+          className="w-full px-4 py-3 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-brand-secondary"
         />
       </div>
 
@@ -252,7 +252,7 @@ export function EmployeeForm({ empleado }: Props) {
           ref={fileRef}
           type="file"
           accept="image/*"
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-200 file:text-gray-700 hover:file:bg-gray-300 cursor-pointer"
+          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primaryHover cursor-pointer"
         />
         <p className="text-gray-400 text-xs mt-1">
           O ingresa una URL directa:
@@ -262,7 +262,7 @@ export function EmployeeForm({ empleado }: Props) {
           value={fotoUrl}
           onChange={(e) => setFotoUrl(e.target.value)}
           placeholder="https://..."
-          className="w-full mt-1 px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
+          className="w-full mt-1 px-4 py-2 bg-[#F5F6F7] border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-brand-secondary"
         />
       </div>
 
@@ -275,7 +275,7 @@ export function EmployeeForm({ empleado }: Props) {
             aria-checked={mostrarCumpleanos}
             onClick={() => setMostrarCumpleanos(!mostrarCumpleanos)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              mostrarCumpleanos ? "bg-emerald-600" : "bg-gray-300"
+              mostrarCumpleanos ? "bg-brand-primary" : "bg-gray-300"
             }`}
           >
             <span
@@ -293,7 +293,7 @@ export function EmployeeForm({ empleado }: Props) {
             aria-checked={mostrarAniversario}
             onClick={() => setMostrarAniversario(!mostrarAniversario)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              mostrarAniversario ? "bg-emerald-600" : "bg-gray-300"
+              mostrarAniversario ? "bg-brand-primary" : "bg-gray-300"
             }`}
           >
             <span
@@ -307,7 +307,7 @@ export function EmployeeForm({ empleado }: Props) {
 
       {success && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-          <p className="text-emerald-700 text-sm font-semibold">{success}</p>
+          <p className="text-brand-primary text-sm font-semibold">{success}</p>
         </div>
       )}
       {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -316,7 +316,7 @@ export function EmployeeForm({ empleado }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-semibold transition-colors"
+          className="px-6 py-3 bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-50 text-white rounded-xl font-semibold transition-colors"
         >
           {loading ? "Guardando…" : isEditing ? "Actualizar" : "Crear empleado"}
         </button>
@@ -326,7 +326,7 @@ export function EmployeeForm({ empleado }: Props) {
             type="button"
             onClick={handleDelete}
             disabled={loading}
-            className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-semibold transition-colors"
+            className="px-6 py-3 bg-white border border-brand-danger hover:bg-red-50 text-brand-danger rounded-xl font-semibold transition-colors"
           >
             Eliminar
           </button>

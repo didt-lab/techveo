@@ -14,6 +14,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              var tvRoutes = ["/", "/aniversarios", "/nuevo-ingreso", "/techndencias"];
+              if (tvRoutes.indexOf(location.pathname) !== -1) {
+                document.documentElement.style.fontSize = "1.2vw";
+              }
+            })();`,
+          }}
+        />
+      </head>
       <body>
         <QueryProvider>{children}</QueryProvider>
       </body>

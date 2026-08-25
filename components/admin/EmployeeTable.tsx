@@ -3,6 +3,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Empleado } from "@/lib/domain/types";
+import { PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "./icons";
+
+const PAGE_SIZE = 15;
 
 function Toggle({
   checked,
@@ -21,7 +24,7 @@ function Toggle({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-        checked ? "bg-emerald-600" : "bg-gray-300"
+        checked ? "bg-brand-primary" : "bg-gray-300"
       } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <span
@@ -68,13 +71,6 @@ function getYearsOfService(fechaIngreso: string): number {
   return new Date().getFullYear() - year;
 }
 
-/** Returns "MM-DD" for month-day sorting */
-function getMonthDay(dateStr: string): string {
-  const parts = dateStr.split("-");
-  if (parts.length < 3) return "00-00";
-  return `${parts[1]}-${parts[2]}`;
-}
-
 type SortField = "nombre" | "fecha_nacimiento" | "fecha_ingreso" | "matricula";
 type SortDir = "asc" | "desc";
 
@@ -92,7 +88,9 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
   const [sortDir, setSortDir] = useState<SortDir>(
     (searchParams.get("sd") as SortDir) || "asc"
   );
+  const [page, setPage] = useState(parseInt(searchParams.get("p") ?? "1", 10) || 1);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const syncUrl = useCallback(
     (overrides: Record<string, string>) => {
@@ -124,35 +122,57 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     router.refresh();
   }
 
+  async function handleDelete(emp: Empleado) {
+    if (!confirm(`¿Eliminar a ${emp.nombre}?`)) return;
+    setDeleting(emp.id);
+    await fetch(`/api/empleados/${emp.id}`, { method: "DELETE" });
+    setDeleting(null);
+    router.refresh();
+  }
+
   function allFilters(overrides: Record<string, string> = {}) {
-    return { q: search, mc: mesCumple, mi: mesIngreso, ma: minAnios, sf: sortField, sd: sortDir, ...overrides };
+    return {
+      q: search,
+      mc: mesCumple,
+      mi: mesIngreso,
+      ma: minAnios,
+      sf: sortField,
+      sd: sortDir,
+      p: String(page),
+      ...overrides,
+    };
   }
 
   function handleSearch(val: string) {
     setSearch(val);
-    syncUrl(allFilters({ q: val }));
+    setPage(1);
+    syncUrl(allFilters({ q: val, p: "" }));
   }
 
   function handleMesCumple(val: string) {
     setMesCumple(val);
-    syncUrl(allFilters({ mc: val }));
+    setPage(1);
+    syncUrl(allFilters({ mc: val, p: "" }));
   }
 
   function handleMesIngreso(val: string) {
     setMesIngreso(val);
-    syncUrl(allFilters({ mi: val }));
+    setPage(1);
+    syncUrl(allFilters({ mi: val, p: "" }));
   }
 
   function handleMinAnios(val: string) {
     setMinAnios(val);
-    syncUrl(allFilters({ ma: val }));
+    setPage(1);
+    syncUrl(allFilters({ ma: val, p: "" }));
   }
 
   function handleClearFilters() {
     setMesCumple("");
     setMesIngreso("");
     setMinAnios("");
-    syncUrl(allFilters({ mc: "", mi: "", ma: "" }));
+    setPage(1);
+    syncUrl(allFilters({ mc: "", mi: "", ma: "", p: "" }));
   }
 
   function handleSort(field: SortField) {
@@ -164,7 +184,13 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     }
     setSortField(field);
     setSortDir(newDir);
-    syncUrl(allFilters({ sf: field, sd: newDir }));
+    setPage(1);
+    syncUrl(allFilters({ sf: field, sd: newDir, p: "" }));
+  }
+
+  function handlePage(p: number) {
+    setPage(p);
+    syncUrl(allFilters({ p: p === 1 ? "" : String(p) }));
   }
 
   const filtered = empleados
@@ -177,14 +203,13 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
     .filter((e) => (mesIngreso ? getMonth(e.fecha_ingreso) === parseInt(mesIngreso, 10) : true))
     .filter((e) => (minAnios ? getYearsOfService(e.fecha_ingreso) >= parseInt(minAnios, 10) : true))
     .sort((a, b) => {
-      let cmp: number;
-      if (sortField === "fecha_nacimiento" || sortField === "fecha_ingreso") {
-        cmp = a[sortField].localeCompare(b[sortField]);
-      } else {
-        cmp = a[sortField].localeCompare(b[sortField]);
-      }
+      const cmp = a[sortField].localeCompare(b[sortField]);
       return sortDir === "asc" ? cmp : -cmp;
     });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   // Persist filtered order for prev/next navigation in edit form
   useEffect(() => {
@@ -202,12 +227,12 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
           placeholder="Buscar por nombre o matrícula…"
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 w-72 focus:outline-none focus:border-gray-400"
+          className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 w-72 focus:outline-none focus:border-brand-secondary"
         />
         <select
           value={mesCumple}
           onChange={(e) => handleMesCumple(e.target.value)}
-          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
+          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-brand-secondary"
         >
           {MESES.map((m) => (
             <option key={`cumple-${m.value}`} value={m.value}>
@@ -218,7 +243,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         <select
           value={mesIngreso}
           onChange={(e) => handleMesIngreso(e.target.value)}
-          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
+          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-brand-secondary"
         >
           {MESES.map((m) => (
             <option key={`ingreso-${m.value}`} value={m.value}>
@@ -229,7 +254,7 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         <select
           value={minAnios}
           onChange={(e) => handleMinAnios(e.target.value)}
-          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-gray-400"
+          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:border-brand-secondary"
         >
           {ANTIGUEDAD.map((a) => (
             <option key={`ant-${a.value}`} value={a.value}>
@@ -247,100 +272,112 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
         )}
         <a
           href="/admin/empleados/nuevo"
-          className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors"
+          className="ml-auto px-4 py-2 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-lg font-semibold text-sm transition-colors"
         >
           + Nuevo empleado
         </a>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-gray-200 text-gray-500 text-sm uppercase tracking-wider">
-              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("matricula")}>
+            <tr className="border-b border-gray-200 bg-[#F4F7FC] text-[#404041] text-xs font-bold uppercase tracking-wider">
+              <th className="px-5 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("matricula")}>
                 <span className="flex items-center gap-1">
                   Matrícula
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "matricula" ? "text-gray-900" : "text-gray-300"}`}>
-                    <span className={sortField === "matricula" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
-                    <span className={sortField === "matricula" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
+                  <span className={`flex flex-col text-[9px] leading-none ${sortField === "matricula" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "matricula" && sortDir === "asc" ? "text-brand-secondary" : ""}>▲</span>
+                    <span className={sortField === "matricula" && sortDir === "desc" ? "text-brand-secondary" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("nombre")}>
+              <th className="px-5 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("nombre")}>
                 <span className="flex items-center gap-1">
                   Nombre
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "nombre" ? "text-gray-900" : "text-gray-300"}`}>
-                    <span className={sortField === "nombre" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
-                    <span className={sortField === "nombre" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
+                  <span className={`flex flex-col text-[9px] leading-none ${sortField === "nombre" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "nombre" && sortDir === "asc" ? "text-brand-secondary" : ""}>▲</span>
+                    <span className={sortField === "nombre" && sortDir === "desc" ? "text-brand-secondary" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("fecha_nacimiento")}>
+              <th className="px-5 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("fecha_nacimiento")}>
                 <span className="flex items-center gap-1">
                   Cumpleaños
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_nacimiento" ? "text-gray-900" : "text-gray-300"}`}>
-                    <span className={sortField === "fecha_nacimiento" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
-                    <span className={sortField === "fecha_nacimiento" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
+                  <span className={`flex flex-col text-[9px] leading-none ${sortField === "fecha_nacimiento" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "fecha_nacimiento" && sortDir === "asc" ? "text-brand-secondary" : ""}>▲</span>
+                    <span className={sortField === "fecha_nacimiento" && sortDir === "desc" ? "text-brand-secondary" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("fecha_ingreso")}>
+              <th className="px-5 py-3 cursor-pointer hover:text-gray-900 select-none" onClick={() => handleSort("fecha_ingreso")}>
                 <span className="flex items-center gap-1">
                   Fecha Ingreso
-                  <span className={`flex flex-col text-[10px] leading-none ${sortField === "fecha_ingreso" ? "text-gray-900" : "text-gray-300"}`}>
-                    <span className={sortField === "fecha_ingreso" && sortDir === "asc" ? "text-emerald-600" : ""}>▲</span>
-                    <span className={sortField === "fecha_ingreso" && sortDir === "desc" ? "text-emerald-600" : ""}>▼</span>
+                  <span className={`flex flex-col text-[9px] leading-none ${sortField === "fecha_ingreso" ? "text-gray-900" : "text-gray-300"}`}>
+                    <span className={sortField === "fecha_ingreso" && sortDir === "asc" ? "text-brand-secondary" : ""}>▲</span>
+                    <span className={sortField === "fecha_ingreso" && sortDir === "desc" ? "text-brand-secondary" : ""}>▼</span>
                   </span>
                 </span>
               </th>
-              <th className="px-6 py-3">Foto</th>
-              <th className="px-6 py-3 text-center">Mostrar Cumple</th>
-              <th className="px-6 py-3 text-center">Mostrar Aniv.</th>
-              <th className="px-6 py-3"></th>
+              <th className="px-5 py-3">Foto</th>
+              <th className="px-5 py-3 text-center">Mostrar Cumple</th>
+              <th className="px-5 py-3 text-center">Mostrar Aniv.</th>
+              <th className="px-5 py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((emp) => (
+            {paginated.map((emp) => (
               <tr
                 key={emp.id}
-                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
               >
-                <td className="px-6 py-4 font-mono text-sm">{emp.matricula}</td>
-                <td className="px-6 py-4">{emp.nombre}</td>
-                <td className="px-6 py-4 text-gray-500">{emp.fecha_nacimiento}</td>
-                <td className="px-6 py-4 text-gray-500">{emp.fecha_ingreso}</td>
-                <td className="px-6 py-4">
+                <td className="px-5 py-3 font-mono text-sm text-gray-700">{emp.matricula}</td>
+                <td className="px-5 py-3 text-sm">{emp.nombre}</td>
+                <td className="px-5 py-3 text-sm text-gray-500">{emp.fecha_nacimiento}</td>
+                <td className="px-5 py-3 text-sm text-gray-500">{emp.fecha_ingreso}</td>
+                <td className="px-5 py-3">
                   {emp.foto_url ? (
                     <img
                       src={emp.foto_url}
                       alt=""
-                      className="w-8 h-8 rounded-full object-cover"
+                      className="w-7 h-7 rounded-full object-cover"
                     />
                   ) : (
-                    <span className="text-gray-400 text-sm">Sin foto</span>
+                    <span className="text-gray-400 text-xs">Sin foto</span>
                   )}
                 </td>
-                <td className="px-6 py-4 text-center">
+                <td className="px-5 py-3 text-center">
                   <Toggle
                     checked={emp.mostrar_cumpleanos}
                     onChange={() => toggleField(emp, "mostrar_cumpleanos")}
                     disabled={updating === `${emp.id}-mostrar_cumpleanos`}
                   />
                 </td>
-                <td className="px-6 py-4 text-center">
+                <td className="px-5 py-3 text-center">
                   <Toggle
                     checked={emp.mostrar_aniversario}
                     onChange={() => toggleField(emp, "mostrar_aniversario")}
                     disabled={updating === `${emp.id}-mostrar_aniversario`}
                   />
                 </td>
-                <td className="px-6 py-4">
-                  <a
-                    href={`/admin/empleados/${emp.id}/editar`}
-                    className="text-emerald-600 hover:text-emerald-700 text-sm transition-colors"
-                  >
-                    Editar
-                  </a>
+                <td className="px-5 py-3">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <a
+                      href={`/admin/empleados/${emp.id}/editar`}
+                      title="Editar"
+                      className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-brand-secondary transition-colors"
+                    >
+                      <PencilIcon className="w-3.5 h-3.5" />
+                    </a>
+                    <button
+                      type="button"
+                      title="Eliminar"
+                      onClick={() => handleDelete(emp)}
+                      disabled={deleting === emp.id}
+                      className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-brand-danger transition-colors disabled:opacity-50"
+                    >
+                      <TrashIcon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -353,11 +390,57 @@ export function EmployeeTable({ empleados }: { empleados: Empleado[] }) {
             )}
           </tbody>
         </table>
-      </div>
 
-      <p className="text-gray-400 text-sm mt-4">
-        {filtered.length} de {empleados.length} empleados
-      </p>
+        {filtered.length > 0 && (
+          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-white">
+            <p className="text-gray-400 text-xs">
+              {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} de {filtered.length}
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePage(safePage - 1)}
+                disabled={safePage <= 1}
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              >
+                <ChevronLeftIcon className="w-4 h-4" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                .reduce<number[]>((acc, p) => {
+                  if (acc.length > 0 && p - acc[acc.length - 1] > 1) acc.push(-1);
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, i) =>
+                  p === -1 ? (
+                    <span key={`gap-${i}`} className="px-1 text-gray-300 text-sm">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => handlePage(p)}
+                      className={`min-w-[32px] h-8 px-1 rounded-lg text-sm transition-colors ${
+                        p === safePage
+                          ? "bg-brand-secondary text-white font-semibold"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              <button
+                onClick={() => handlePage(safePage + 1)}
+                disabled={safePage >= totalPages}
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              >
+                <ChevronRightIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
